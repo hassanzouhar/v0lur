@@ -329,14 +329,72 @@ python -c "from transformers import pipeline; pipeline('ner', 'dslim/bert-base-N
 
 ## Aggregation Outputs
 
-| File                         | Purpose                                    |
-| ---------------------------- | ------------------------------------------ |
-| `*_daily_summary.csv`        | Posts per day, avg sentiment, max toxicity |
-| `*_entity_stance_counts.csv` | Total support/oppose per entity            |
-| `*_entity_stance_daily.csv`  | Stance timeline per entity                 |
-| `*_topic_share_daily.csv`    | Topic distribution over time               |
-| `*_domain_counts.csv`        | Amplified domains                          |
-| `*_top_toxic_messages.csv`   | Most toxic messages with context           |
+The pipeline generates CSV sidecars for specific analytical views:
+
+### Entity Stance Analysis
+
+**`*_entity_stance_counts.csv`** - Total support/oppose per entity
+```csv
+entity,entity_type,support_count,oppose_count,neutral_count,total_mentions,stance_confidence_p95
+"Donald Trump",PERSON,45,12,8,65,0.82
+"Democratic Party",ORG,8,23,5,36,0.78
+```
+
+**`*_entity_stance_daily.csv`** - Stance timeline per entity
+```csv
+date,entity,support_count,oppose_count,neutral_count,support_share,oppose_share
+2024-01-15,"Donald Trump",5,2,1,0.625,0.25
+2024-01-16,"Donald Trump",3,4,2,0.333,0.444
+```
+
+### Topic Analysis
+
+**`*_topic_share_daily.csv`** - Topic distribution over time
+```csv
+date,topic_label,message_count,topic_share,topic_entropy,emerging_flag
+2024-01-15,immigration,8,0.32,1.45,false
+2024-01-15,economy,5,0.20,1.12,false
+2024-01-15,NEW_TOPIC_1,3,0.12,0.87,true
+```
+
+### Daily Summaries
+
+**`*_daily_summary.csv`** - Posts per day with aggregated metrics
+```csv
+date,total_posts,avg_sentiment,max_toxicity,unique_entities,top_topic,stance_edges_count
+2024-01-15,25,0.15,0.82,12,immigration,47
+2024-01-16,18,-0.05,0.67,8,economy,32
+```
+
+### Link & Domain Analysis
+
+**`*_domain_counts.csv`** - Amplified domains with metrics
+```csv
+domain,total_links,unique_days,first_seen,last_seen,top_k_rank
+twitter.com,45,8,2024-01-10,2024-01-17,1
+news.example.com,23,5,2024-01-12,2024-01-16,2
+```
+
+### Toxicity Leaderboard
+
+**`*_top_toxic_messages.csv`** - Most toxic content with evidence
+```csv
+msg_id,date,toxicity_score,toxic_spans,author_entity,message_preview
+12345,2024-01-15,0.95,"[{start:10,end:25,text:'hate speech'}]","@user123","This is completely..."
+```
+
+### Output Writers Configuration
+
+The Output Writers stage (3.12) supports configurable formats:
+
+```yaml
+io:
+  parquet_engine: fastparquet   # or pyarrow
+  parquet_compression: zstd     # or gzip, brotli, snappy
+  csv_delimiter: ","            # or ";", "\t" 
+  csv_encoding: "utf-8"
+  enable_sidecars: true         # Generate CSV aggregations
+```
 
 ## Outputs and Artifacts
 
@@ -494,6 +552,23 @@ processing:
 ### Evidence retention
 Each stance edge stores evidence spans: `{start, end, text, speaker, span_type, source}`. This enables audits and prevents over-attribution.
 
+### Example: Multi-speaker Message
+```
+Input message: "I support Biden's climate policies. But as Trump said, 'the green new deal will destroy our economy'"
+
+Generated stance edges:
+1. {speaker: "author", target: "Biden", label: "support", evidence_spans: [{start: 0, end: 30, text: "I support Biden's climate policies", span_type: "author"}]}
+2. {speaker: "Trump", target: "green new deal", label: "oppose", evidence_spans: [{start: 58, end: 99, text: "the green new deal will destroy our economy", span_type: "quoted"}]}
+```
+Note: Two separate stance edges are created - one for the author's opinion and one for the quoted speaker's opinion.
+
+### Edge Cases
+- **Sarcasm/ironic quoting**: Detected but defaults to unclear attribution unless explicit framing signals present
+- **Link-only posts**: No stance attribution (insufficient textual evidence)
+- **Emoji-heavy posts**: Emojis contribute to sentiment but not stance classification
+- **Multi-quote posts**: Each quote span analyzed independently; multiple stance edges possible
+- **Unidentifiable speakers**: Quoted spans with unknown speakers still excluded from stance attribution
+
 ## Contextual Stance Classification (Hybrid)
 
 ### Approach
@@ -531,22 +606,64 @@ processing:
 
 ## Topics — Hybrid Approach
 
-### Steps
-1. Ontology-based classification
-   - Curated `config/topics.json` with keywords; stable for longitudinal charts
-2. Unsupervised discovery
-   - Sentence embeddings + clustering (default: KMeans; optional: BERTopic/HDBSCAN)
-   - Extract key phrases per cluster
-3. Mapping clusters to ontology
-   - Zero-shot classification of clusters against ontology; unmatched → `NEW_TOPIC_X`
-4. Output fields
-   - Store both `ontology_topics` and `discovery_topics` per message
+### Why Hybrid?
+Fixed topic lists are stable but blind to emerging issues. Pure discovery methods find novel topics but lack longitudinal stability.
 
-### Example ontology
+### Steps
+1. **Ontology-based classification**:
+   - Deterministic keyword/phrase matching with weights and disambiguation
+   - Curated `config/topics.json` for consistent time-series reporting
+   - Used for established topics with known vocabulary
+
+2. **Discovery (light-weight)**:
+   - **Embeddings**: sentence-transformers/all-MiniLM-L6-v2 (default)
+   - **Clustering**: KMeans with configurable n_topics or "auto" via silhouette elbow
+   - **Labeling**: TF-IDF keywords (default) or KeyBERT if enabled
+   - Optional: HDBSCAN/UMAP behind feature flag for advanced clustering
+
+3. **Mapping discovered clusters to ontology**:
+   - Zero-shot classify cluster labels against ontology topics
+   - Unmatched clusters → labeled as `NEW_TOPIC_1`, `NEW_TOPIC_2`, etc.
+   - Log outliers for potential ontology updates
+
+4. **Output fields**:
+   - Store both `ontology_topics` and `discovery_topics` per message
+   - Discovery results enable identification of emerging themes
+
+### Configuration
+```yaml
+models:
+  topic_embeddings: sentence-transformers/all-MiniLM-L6-v2
+  
+topic:
+  ontology_path: config/topics.json
+  discovery:
+    enabled: true
+    method: kmeans           # hdbscan optional via [topic-hdbscan] extra
+    max_topics: 30
+    min_cluster_size: 20
+    labeler: tfidf_keywords  # keybert optional
+    silhouette_threshold: 0.3
+```
+
+### Example ontology (`config/topics.json`)
 ```json
 [
-  {"label": "immigration", "keywords": ["immigration", "border"]},
-  {"label": "economy", "keywords": ["jobs", "inflation"]}
+  {
+    "label": "immigration", 
+    "keywords": ["immigration", "border", "migrants", "asylum"],
+    "weight": 1.0
+  },
+  {
+    "label": "economy", 
+    "keywords": ["jobs", "inflation", "unemployment", "GDP"],
+    "weight": 1.0
+  },
+  {
+    "label": "healthcare",
+    "keywords": ["healthcare", "medicare", "insurance", "hospital"],
+    "weight": 0.8
+  }
 ]
 ```
 
