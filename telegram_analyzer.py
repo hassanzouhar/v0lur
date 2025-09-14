@@ -74,6 +74,134 @@ def detect_device() -> str:
     return "cpu"
 
 
+class TelegramAnalyzer:
+    """Main class for Telegram analysis pipeline."""
+    
+    def __init__(self, config_path: str):
+        """Initialize analyzer with configuration."""
+        self.config = Config(config_path)
+        self.device = None
+        
+    def analyze_channel(
+        self,
+        input_path: str,
+        output_dir: str,
+        batch_size: Optional[int] = None,
+        skip_langdetect: bool = False,
+        verbose: bool = False,
+    ) -> None:
+        """Run the complete analysis pipeline."""
+        
+        # Override config with parameters
+        if batch_size:
+            self.config.set("processing.batch_size", batch_size)
+        if skip_langdetect:
+            self.config.set("processing.skip_langdetect", True)
+        
+        # Set up output directory
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        
+        # Save config snapshot for reproducibility
+        self.config.save_snapshot(output_path)
+        
+        # Detect compute device
+        device = detect_device()
+        if not self.config.prefer_gpu:
+            device = "cpu"
+        self.device = device
+        
+        logger.info(f"Starting analysis pipeline with device: {device}")
+        logger.info(f"Input: {input_path}")
+        logger.info(f"Output: {output_path}")
+        logger.info(f"Batch size: {self.config.batch_size}")
+        
+        # Step 1: Load and normalize data
+        logger.info("=" * 50)
+        logger.info("Step 1: Loading and normalizing data")
+        logger.info("=" * 50)
+        
+        data_loader = DataLoader(max_text_length=self.config.max_text_length)
+        df = data_loader.load_data(
+            input_path=input_path,
+            format_type=self.config.input_format,
+            text_col=self.config.text_column,
+            id_col=self.config.id_column,
+            date_col=self.config.date_column,
+        )
+        
+        # Print data summary
+        summary = data_loader.get_data_summary(df)
+        logger.info(f"Data summary: {summary}")
+        
+        # Step 2: Language detection (optional)
+        if not self.config.skip_langdetect:
+            logger.info("=" * 50)
+            logger.info("Step 2: Language detection")
+            logger.info("=" * 50)
+            
+            try:
+                from langdetect import detect
+                logger.info("Running language detection...")
+                df["language"] = df["text"].apply(
+                    lambda x: detect(x) if len(x.strip()) > 10 else "unknown"
+                )
+                lang_counts = df["language"].value_counts()
+                logger.info(f"Language distribution: {dict(lang_counts.head())}")
+            except Exception as e:
+                logger.warning(f"Language detection failed: {e}")
+                df["language"] = "unknown"
+        else:
+            df["language"] = "unknown"
+            logger.info("Skipping language detection")
+        
+        # Step 3: Named Entity Recognition
+        logger.info("=" * 50)
+        logger.info("Step 3: Named Entity Recognition")
+        logger.info("=" * 50)
+        
+        ner_processor = NERProcessor(
+            model_name=self.config.ner_model,
+            max_entities_per_msg=self.config.max_entities_per_msg,
+            device=device,
+        )
+        
+        # Load entity aliases
+        aliases = self.config.load_aliases()
+        if aliases:
+            ner_processor.load_aliases(aliases)
+        
+        df = ner_processor.process_dataframe(df)
+        entity_stats = ner_processor.get_entity_stats(df)
+        logger.info(f"Entity extraction stats: {entity_stats}")
+        
+        # Step 4: Save intermediate results
+        logger.info("=" * 50)
+        logger.info("Saving results")
+        logger.info("=" * 50)
+        
+        # Save main enriched dataset
+        main_output = output_path / "posts_enriched.parquet"
+        data_loader.save_processed_data(df, main_output)
+        
+        # Save daily summary
+        daily_summary = create_daily_summary(df)
+        daily_summary.to_csv(output_path / "channel_daily_summary.csv", index=False)
+        
+        # Save entity counts
+        if entity_stats:
+            entity_counts_df = pd.DataFrame(list(entity_stats["top_entities"].items()), 
+                                           columns=["entity", "count"])
+            entity_counts_df.to_csv(output_path / "channel_entity_counts.csv", index=False)
+        
+        logger.info("=" * 50)
+        logger.info("Analysis completed successfully!")
+        logger.info("=" * 50)
+        logger.info(f"Results saved to: {output_path}")
+        logger.info(f"Main output: {main_output}")
+        logger.info(f"Total messages processed: {len(df)}")
+
+
 def analyze_channel(
     config_path: str,
     input_path: str,
@@ -82,11 +210,15 @@ def analyze_channel(
     skip_langdetect: bool = False,
     verbose: bool = False,
 ) -> None:
-    """Run the complete analysis pipeline."""
-    
-    # Load configuration
-    logger.info(f"Loading configuration from {config_path}")
-    config = Config(config_path)
+    """Run the complete analysis pipeline (functional interface)."""
+    analyzer = TelegramAnalyzer(config_path)
+    analyzer.analyze_channel(
+        input_path=input_path,
+        output_dir=output_dir,
+        batch_size=batch_size,
+        skip_langdetect=skip_langdetect,
+        verbose=verbose
+    )
     
     # Override config with CLI arguments
     if batch_size:

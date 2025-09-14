@@ -10,7 +10,7 @@ __version__ = "0.1.0"
 __author__ = "raigem0n"
 __description__ = "Telegram Stance & Language Analysis Pipeline"
 
-from .telegram_analyzer import TelegramAnalyzer
+from telegram_analyzer import TelegramAnalyzer
 from .config import Config
 from .data_loader import DataLoader
 from .processors import (

@@ -19,7 +19,7 @@ setup:
 	@echo "Setting up development environment..."
 	pyenv install 3.11.9 -s
 	pyenv local 3.11.9
-	python -m venv .venv
+	pyenv exec python -m venv .venv
 	.venv/bin/pip install -U pip pip-tools pip-audit
 	@if [ -f requirements.txt ]; then \
 		.venv/bin/pip install -r requirements.txt; \
