@@ -55,7 +55,7 @@ git clone <repository-url> && cd raigem0n
 pyenv install 3.11.9 && pyenv local 3.11.9
 python -m venv .venv && source .venv/bin/activate
 pip install -U pip && pip install -r requirements.txt
-python -m spacy download en_core_web_md
+python -m spacy download en_core_web_sm
 
 # Configure for CPU (default per Exo rules)
 export CLANG=1; unset CUDA; unset GPU
@@ -108,7 +108,7 @@ pip install -r requirements.txt
 pip-audit
 
 # Download required models
-python -m spacy download en_core_web_md
+python -m spacy download en_core_web_sm
 ```
 
 **Package Pinning Strategy:**
@@ -204,7 +204,7 @@ Columns:
 ```yaml
 io:
   input_path: data/channel.json
-  format: json              # json|jsonl|csv
+  format: json
   text_col: message
   id_col: message_id
   date_col: date
@@ -214,20 +214,49 @@ models:
   ner: dslim/bert-base-NER
   sentiment: cardiffnlp/twitter-roberta-base-sentiment-latest
   toxicity: unitary/toxic-bert
-  stance: facebook/bart-large-mnli        # or distilbart-mnli for speed
+  stance: facebook/bart-large-mnli
   topic: facebook/bart-large-mnli
 
 processing:
-  batch_size: 32                          # 8-16 for CPU, 32-128 for GPU
-  prefer_gpu: false                       # true for CUDA/MPS
-  quote_aware: true                       # critical for attribution
-  skip_langdetect: false                  # true if monolingual
+  batch_size: 32
+  prefer_gpu: true
+  quote_aware: true
+  skip_langdetect: true
   max_entities_per_msg: 3
-  stance_threshold: 0.6                   # precision over recall
+  stance_threshold: 0.6
 
 resources:
   aliases_path: config/aliases.json
   topics_path: config/topics.json
+
+# Extended configuration with all options:
+topic:
+  ontology_path: config/topics.json
+  discovery:
+    enabled: true
+    method: kmeans           # hdbscan optional via extra
+    max_topics: 30
+    min_cluster_size: 20
+    labeler: tfidf_keywords  # or keybert if enabled
+
+processing:
+  stance:
+    threshold: 0.6
+    dep_rules_weight: 0.6
+    mnli_weight: 0.4
+    negative_words: [not, never, no]
+    support_verbs: [support, back, endorse, praise]
+    oppose_verbs: [oppose, criticize, condemn, attack]
+  
+  quote:
+    detect_forwarded: true
+    detect_quoted_spans: true
+    max_quote_length: 2048
+    attribute_forwarded_to_source: true
+
+io:
+  parquet_engine: fastparquet   # pyarrow optional
+  parquet_compression: zstd
 ```
 
 ### Entity Aliases (`config/aliases.json`)
@@ -250,11 +279,11 @@ resources:
 [
   {
     "label": "immigration",
-    "keywords": ["immigration", "border", "migrants", "asylum"]
+    "keywords": ["immigration", "border"]
   },
   {
     "label": "economy", 
-    "keywords": ["jobs", "inflation", "economy", "economic"]
+    "keywords": ["jobs", "inflation"]
   }
 ]
 ```
@@ -295,6 +324,17 @@ export TRANSFORMERS_CACHE=/path/to/cache/transformers
 python -c "from transformers import pipeline; pipeline('ner', 'dslim/bert-base-NER')"
 ```
 
+## Aggregation Outputs
+
+| File                         | Purpose                                    |
+| ---------------------------- | ------------------------------------------ |
+| `*_daily_summary.csv`        | Posts per day, avg sentiment, max toxicity |
+| `*_entity_stance_counts.csv` | Total support/oppose per entity            |
+| `*_entity_stance_daily.csv`  | Stance timeline per entity                 |
+| `*_topic_share_daily.csv`    | Topic distribution over time               |
+| `*_domain_counts.csv`        | Amplified domains                          |
+| `*_top_toxic_messages.csv`   | Most toxic messages with context           |
+
 ## Outputs and Artifacts
 
 **Directory Structure:**
@@ -326,44 +366,92 @@ print(stance_data[['speaker', 'target', 'label', 'score', 'evidence_spans']])
 daily = pd.read_csv('out/run-*/channel_daily_summary.csv')
 ```
 
-## Architecture Overview
+## Processing Stages
 
 ```mermaid
 graph LR
-    A[Load/Normalize] --> B[Language Detection]
-    B --> C[NER Extraction]
-    C --> D[Entity Aliasing]
-    D --> E[Quote/Span Tagging]
-    E --> F[Stance Classification]
-    F --> G[Topic Analysis]
-    F --> H[Sentiment/Toxicity]
-    F --> I[Links/Domains]
-    F --> J[Style Features]
-    G --> K[Aggregations]
-    H --> K
-    I --> K
-    J --> K
-    K --> L[Output Writers]
+    A[3.1 Load & Normalize] --> B[3.2 Language Detection]
+    B --> C[3.3 NER]
+    C --> D[3.4 Entity Aliasing]
+    D --> E[3.5 Quote/Span Tagging]
+    E --> F[3.6 Stance Classification]
+    F --> G[3.7 Topic Analysis]
+    G --> H[3.8 Sentiment/Toxicity]
+    H --> I[3.9 Links/Domains]
+    I --> J[3.10 Style Features]
+    J --> K[3.11 Aggregations]
+    K --> L[3.12 Output Writers]
 ```
 
-**Processing Stages:**
-1. **Load/Normalize**: JSON/CSV → standardized format, text clipping
-2. **Language Detection**: `langdetect` (skippable for monolingual)
-3. **NER**: Extract PERSON/ORG/LOC entities via BERT or spaCy
-4. **Entity Aliasing**: Map surface forms → canonical entities  
-5. **Quote/Span Tagging**: Identify author vs. quoted/forwarded content
-6. **Stance Classification**: Dependency parsing + zero-shot MNLI
-7. **Topic Analysis**: Ontology matching + BERTopic discovery
-8. **Sentiment/Toxicity**: RoBERTa-based classifiers
-9. **Links/Domains**: URL extraction and domain parsing
-10. **Style Features**: Caps ratio, exclamations, hedges, superlatives
-11. **Aggregations**: Daily summaries, entity timelines, topic trends
-12. **Output Writers**: Parquet + CSV sidecars
+### 3.1 Load & Normalize
+* Support JSON, JSONL, or CSV formats
+* Coerce Telegram's `list-of-spans` format into a single string
+* Limit text length (default 8k characters)
+
+### 3.2 Language Detection
+* Default to `langdetect`
+* Skip with `--skip-langdetect` if data is monolingual
+
+### 3.3 NER
+* Default: Hugging Face token-classification model (e.g., `dslim/bert-base-NER`)
+* Optional: spaCy model (`en_core_web_sm`)
+* Normalize to `{PERSON, ORG, LOC, MISC}`
+* Deduplicate mentions per message
+
+### 3.4 Entity Aliasing
+* Load from `aliases.json`
+* Map surface forms and nicknames → canonical entities with optional IDs
+
+### 3.5 Quote/Span Tagging
+* Identify author vs. quoted/forwarded content
+* Label spans as `author`, `quoted`, or `forwarded`
+* Detect typographic quotes, block quotes, forwarded metadata
+
+### 3.6 Stance Classification
+* Hybrid approach: dependency rules + zero-shot MNLI
+* Generate stance edges: `{speaker, target, label, score, evidence_spans}`
+* Default: exclude non-author spans for stance attribution
+
+### 3.7 Topic Analysis
+* Ontology-based matching for stable categories
+* Unsupervised discovery for emerging topics (embeddings + clustering)
+* Map discovered clusters to ontology; label outliers as `NEW_TOPIC_X`
+
+### 3.8 Sentiment & Toxicity
+* RoBERTa-based classifiers for sentiment polarity and toxicity scoring
+* Store both labels and confidence scores
+
+### 3.9 Links & Domains
+* Regex extract URLs
+* Parse with `urlparse`
+* Strip `www.` prefix
+* Store both raw links and domain counts
+
+### 3.10 Style Features
+* Exclamation count (`!`)
+* All-caps ratio
+* Hedge words (e.g., "maybe", "perhaps")
+* Superlatives ("best", "greatest")
+* Persist in `style_features` JSON
+
+### 3.11 Aggregations
+* Daily summaries and timelines
+* Entity stance totals and trends
+* Topic distribution over time
+* Domain amplification metrics
+
+### 3.12 Output Writers
+* Main output: Parquet file (default engine: fastparquet)
+* CSV sidecars for specific views
+* Config snapshot for reproducibility
 
 **Key Design Rules:**
+- **Neutrality by design**: default to `unclear` when ambiguous
+- **Transparency**: evidence spans stored with every stance edge
+- **Hybrid thinking**: fixed ontology for stability, unsupervised discovery for novelty
+- **Speaker-aware**: never mix author words with quoted or forwarded voices
+- **Iterative refinement**: top entities and clusters logged for alias/topic updates
 - Cap entities per message (default: 3)
-- Speaker-aware attribution: exclude non-author spans by default
-- Hybrid stance scoring: rules + MNLI consensus
 - Text clipping at 8k characters
 - Batch processing with memory safeguards
 
@@ -656,8 +744,8 @@ python -c "import torch; print(torch.backends.mps.is_available())"
 ### Model Issues
 **Q: spaCy model missing**
 ```bash
-python -m spacy download en_core_web_md
-# Or use pip: pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.7.1/en_core_web_md-3.7.1.tar.gz
+python -m spacy download en_core_web_sm
+# Or use pip: pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
 ```
 
 **Q: Hugging Face model download fails**

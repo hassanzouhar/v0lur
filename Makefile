@@ -26,7 +26,7 @@ setup:
 	else \
 		echo "Warning: requirements.txt not found. Run 'pip-compile requirements.in' to generate it."; \
 	fi
-	.venv/bin/python -m spacy download en_core_web_md
+	.venv/bin/python -m spacy download en_core_web_sm
 	@echo "Environment setup complete. Activate with: source .venv/bin/activate"
 
 # Download models

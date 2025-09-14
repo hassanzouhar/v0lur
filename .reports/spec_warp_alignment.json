@@ -1,0 +1,138 @@
+[
+  {
+    "spec_section": "Purpose",
+    "required_elements": "Section heading",
+    "exists_in_WARP": true,
+    "action": "✅ Present",
+    "details": "Matches: ['Purpose and Scope']",
+    "owner": "doc-alignment"
+  },
+  {
+    "spec_section": "Scope",
+    "required_elements": "Section heading",
+    "exists_in_WARP": true,
+    "action": "✅ Present",
+    "details": "Matches: ['Purpose and Scope']",
+    "owner": "doc-alignment"
+  },
+  {
+    "spec_section": "Data Model",
+    "required_elements": "Section heading",
+    "exists_in_WARP": true,
+    "action": "✅ Present",
+    "details": "Matches: ['Data Model and Normalization']",
+    "owner": "doc-alignment"
+  },
+  {
+    "spec_section": "Processing Stages",
+    "required_elements": "Section heading",
+    "exists_in_WARP": false,
+    "action": "❌ Missing",
+    "details": "",
+    "owner": "doc-alignment"
+  },
+  {
+    "spec_section": "Quote Handling & Attribution",
+    "required_elements": "Section heading",
+    "exists_in_WARP": true,
+    "action": "✅ Present",
+    "details": "Matches: ['Quote Handling & Attribution']",
+    "owner": "doc-alignment"
+  },
+  {
+    "spec_section": "Contextual Stance Classification",
+    "required_elements": "Section heading",
+    "exists_in_WARP": true,
+    "action": "✅ Present",
+    "details": "Matches: ['Contextual Stance Classification']",
+    "owner": "doc-alignment"
+  },
+  {
+    "spec_section": "Topics — Hybrid Approach",
+    "required_elements": "Section heading",
+    "exists_in_WARP": true,
+    "action": "✅ Present",
+    "details": "Matches: ['Approach', 'Topics — Hybrid Approach']",
+    "owner": "doc-alignment"
+  },
+  {
+    "spec_section": "Links & Domains",
+    "required_elements": "Section heading",
+    "exists_in_WARP": true,
+    "action": "✅ Present",
+    "details": "Matches: ['3.9 Links & Domains']",
+    "owner": "doc-alignment"
+  },
+  {
+    "spec_section": "Style Features",
+    "required_elements": "Section heading",
+    "exists_in_WARP": true,
+    "action": "✅ Present",
+    "details": "Matches: ['3.10 Style Features']",
+    "owner": "doc-alignment"
+  },
+  {
+    "spec_section": "Aggregation Outputs",
+    "required_elements": "Section heading",
+    "exists_in_WARP": true,
+    "action": "✅ Present",
+    "details": "Matches: ['Aggregation Outputs']",
+    "owner": "doc-alignment"
+  },
+  {
+    "spec_section": "Config Example",
+    "required_elements": "Section heading",
+    "exists_in_WARP": true,
+    "action": "✅ Present",
+    "details": "Matches: ['Config example']",
+    "owner": "doc-alignment"
+  },
+  {
+    "spec_section": "Evaluation",
+    "required_elements": "Section heading",
+    "exists_in_WARP": true,
+    "action": "✅ Present",
+    "details": "Matches: ['Run evaluation', 'Evaluation']",
+    "owner": "doc-alignment"
+  },
+  {
+    "spec_section": "Milestones",
+    "required_elements": "Section heading",
+    "exists_in_WARP": true,
+    "action": "✅ Present",
+    "details": "Matches: ['Milestones']",
+    "owner": "doc-alignment"
+  },
+  {
+    "spec_section": "Risks & Mitigations",
+    "required_elements": "Section heading",
+    "exists_in_WARP": true,
+    "action": "✅ Present",
+    "details": "Matches: ['Risks & Mitigations']",
+    "owner": "doc-alignment"
+  },
+  {
+    "spec_section": "Deliverables",
+    "required_elements": "Section heading",
+    "exists_in_WARP": true,
+    "action": "✅ Present",
+    "details": "Matches: ['Phase 1 Deliverables']",
+    "owner": "doc-alignment"
+  },
+  {
+    "spec_section": "Guiding Principles",
+    "required_elements": "Section heading",
+    "exists_in_WARP": true,
+    "action": "✅ Present",
+    "details": "Matches: ['Guiding Principles']",
+    "owner": "doc-alignment"
+  },
+  {
+    "spec_section": "Processing Stages",
+    "required_elements": "12-stage pipeline order",
+    "exists_in_WARP": false,
+    "action": "⚠️ Stage mismatch",
+    "details": "Spec: 11 stages, WARP: 12 stages",
+    "owner": "pipeline-alignment"
+  }
+]

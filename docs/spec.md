@@ -87,7 +87,7 @@ Columns:
 ### 3.3 NER
 
 * Default: Hugging Face token-classification model (e.g., `dslim/bert-base-NER`).
-* Optional: spaCy model (`en_core_web_md`).
+* Optional: spaCy model (`en_core_web_sm`).
 * Normalize to `{PERSON, ORG, LOC, MISC}`.
 * Deduplicate mentions per message.
 
