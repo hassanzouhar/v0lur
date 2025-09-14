@@ -1,0 +1,31 @@
+io:
+  input_path: data/sample_channel.json
+  format: json              # json|jsonl|csv
+  text_col: text
+  id_col: msg_id
+  date_col: date
+  out_path: out/posts_enriched.parquet
+
+models:
+  ner: dslim/bert-base-NER
+  sentiment: cardiffnlp/twitter-roberta-base-sentiment-latest
+  toxicity: unitary/toxic-bert
+  stance: facebook/bart-large-mnli        # or distilbart-mnli for speed
+  topic: facebook/bart-large-mnli
+
+processing:
+  batch_size: 32                          # 8-16 for CPU, 32-128 for GPU
+  prefer_gpu: false                       # true for CUDA/MPS
+  quote_aware: true                       # critical for attribution
+  skip_langdetect: false                  # true if monolingual
+  max_entities_per_msg: 3
+  stance_threshold: 0.6                   # precision over recall
+  max_text_length: 8192                   # clip very long messages
+
+resources:
+  aliases_path: config/aliases.json
+  topics_path: config/topics.json
+
+logging:
+  level: INFO                             # DEBUG, INFO, WARNING, ERROR
+  redact_sensitive: true                  # redact PII in logs

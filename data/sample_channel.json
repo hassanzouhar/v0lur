@@ -1,0 +1,47 @@
+[
+  {
+    "msg_id": "1001",
+    "chat_id": "@sample_channel",
+    "date": "2024-01-15T14:30:00Z",
+    "text": "The Biden administration's new immigration policy is a step forward for border security. We need comprehensive reform that protects both national security and human rights.",
+    "media_type": null,
+    "media_url": null,
+    "forwarded_from": null
+  },
+  {
+    "msg_id": "1002", 
+    "chat_id": "@sample_channel",
+    "date": "2024-01-15T15:45:00Z",
+    "text": "\"Trump was the best president we ever had\" - someone on Twitter. I disagree completely. His policies on climate change were destructive to our planet's future.",
+    "media_type": null,
+    "media_url": null,
+    "forwarded_from": null
+  },
+  {
+    "msg_id": "1003",
+    "chat_id": "@sample_channel", 
+    "date": "2024-01-15T16:20:00Z",
+    "text": "Breaking: New job numbers show unemployment at historic lows! The economy is recovering faster than expected. https://example.com/jobs-report",
+    "media_type": null,
+    "media_url": null,
+    "forwarded_from": null
+  },
+  {
+    "msg_id": "1004",
+    "chat_id": "@sample_channel",
+    "date": "2024-01-15T17:10:00Z", 
+    "text": "Healthcare costs are still too high for working families. Democrats and Republicans need to work together on solutions.",
+    "media_type": null,
+    "media_url": null,
+    "forwarded_from": null
+  },
+  {
+    "msg_id": "1005",
+    "chat_id": "@sample_channel",
+    "date": "2024-01-16T09:00:00Z",
+    "text": "Forwarded from @news_source: NATO allies express strong support for Ukraine aid package. European Union pledges additional humanitarian assistance.",
+    "media_type": null,
+    "media_url": null,
+    "forwarded_from": "@news_source"
+  }
+]

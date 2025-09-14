@@ -1,0 +1,42 @@
+[
+  {
+    "label": "immigration",
+    "keywords": ["immigration", "border", "migrants", "asylum", "refugee", "deportation", "visa", "citizenship"]
+  },
+  {
+    "label": "economy",
+    "keywords": ["jobs", "inflation", "economy", "economic", "unemployment", "GDP", "market", "trade", "tariffs"]
+  },
+  {
+    "label": "healthcare",
+    "keywords": ["healthcare", "medical", "insurance", "hospital", "doctor", "medicine", "health", "pandemic", "covid"]
+  },
+  {
+    "label": "education",
+    "keywords": ["education", "school", "university", "student", "teacher", "learning", "curriculum", "academic"]
+  },
+  {
+    "label": "climate",
+    "keywords": ["climate", "environment", "global warming", "carbon", "emissions", "renewable", "energy", "pollution"]
+  },
+  {
+    "label": "foreign_policy",
+    "keywords": ["foreign policy", "international", "diplomacy", "war", "peace", "alliance", "sanctions", "treaty"]
+  },
+  {
+    "label": "technology",
+    "keywords": ["technology", "tech", "AI", "artificial intelligence", "internet", "social media", "cyber", "digital"]
+  },
+  {
+    "label": "civil_rights",
+    "keywords": ["civil rights", "equality", "discrimination", "racism", "gender", "LGBTQ", "freedom", "justice"]
+  },
+  {
+    "label": "elections",
+    "keywords": ["election", "vote", "voting", "ballot", "campaign", "candidate", "democracy", "poll"]
+  },
+  {
+    "label": "crime_justice",
+    "keywords": ["crime", "justice", "police", "law enforcement", "prison", "court", "legal", "criminal"]
+  }
+]
