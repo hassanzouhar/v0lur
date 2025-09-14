@@ -2,18 +2,48 @@
 
 This file provides guidance to WARP (warp.dev) when working with code in this repository.
 
-## Overview and Guiding Principles
+## Purpose and Scope
 
-This is a **neutral, reproducible analytics pipeline** for analyzing public Telegram channels to extract stance classification, topic analysis, and linguistic patterns while maintaining attribution accuracy. The system identifies who authors support/oppose over time, what topics are discussed, and how content is framed linguistically.
+Build a **neutral, reproducible analytics pipeline** to analyze public Telegram channels and answer:
+
+* Who the author **supports** and **opposes** over time.
+* What **topics and issues** are discussed, including emerging ones.
+* The **context** and **linguistic framing** of messages, including quotes and forwarded content.
+* Which **external links/domains** are amplified.
+* Produce outputs with traceable evidence to avoid over-attribution or bias.
+
+The pipeline must prioritize **attribution accuracy**, **transparency**, and **config-driven repeatability**.
 
 📖 **Complete specification**: [`docs/spec.md`](docs/spec.md)
 
-**Core principles:**
-- **Neutrality by design**: Default to `unclear` when ambiguous
-- **Transparency**: Evidence spans stored with every stance classification
-- **Speaker-awareness**: Never mix author words with quoted or forwarded content
-- **Hybrid approach**: Fixed ontology for stability + unsupervised discovery for emerging topics
-- **Iterative refinement**: Top entities and clusters logged for continuous improvement
+### Phase 1 Deliverables (In-Scope)
+
+* Normalize Telegram data (JSON/CSV)
+* Entity extraction and aliasing to canonical forms
+* Stance classification per entity, with context-aware attribution
+* Hybrid **topic classification**:
+  * Stable ontology for time series reporting
+  * Dynamic discovery to capture emerging topics
+* Quote detection and proper speaker attribution
+* Sentiment, toxicity, and stylistic features
+* Link and domain extraction
+* Aggregation outputs and visual sidecars
+* GPU acceleration (MPS for Apple, CUDA for Nvidia)
+* CLI + config file driven
+
+### Future Extensions
+
+* Sarcasm/irony detection
+* Multimedia analysis (OCR, audio)
+* Cross-lingual stance with automatic routing
+
+## Guiding Principles
+
+* **Neutrality by design**: Default to `unclear` when ambiguous
+* **Transparency**: Evidence spans stored with every stance edge
+* **Hybrid thinking**: Fixed ontology for stability, unsupervised discovery for novelty
+* **Speaker-aware**: Never mix author words with quoted or forwarded voices
+* **Iterative refinement**: Top entities and clusters logged for alias/topic updates
 
 ⚠️ **Attribution accuracy is critical** - avoid over-interpretation of quoted material.
 
@@ -121,13 +151,15 @@ export PYTORCH_ENABLE_MPS_FALLBACK=1
 
 ## Data Model and Normalization
 
-**Input Columns:**
-- `msg_id` (unique identifier)
-- `chat_id` (sender/channel ID) 
-- `date` (ISO8601 timestamp)
-- `text` (message content, max 8k chars)
-- `media_type`, `media_url` (optional)
-- `forwarded_from` (optional attribution)
+### Input Schema
+
+Columns:
+* `msg_id` (unique)
+* `chat_id` (sender or channel ID)
+* `date` (ISO8601 string)
+* `text` (normalized message body)
+* `media_type`, `media_url` (optional)
+* `forwarded_from` (optional, for attribution)
 
 **Supported Formats:** JSON, JSONL, CSV
 
@@ -141,6 +173,30 @@ export PYTORCH_ENABLE_MPS_FALLBACK=1
   "forwarded_from": null
 }
 ```
+
+### Output Schema (per message)
+
+| Column            | Type   | Description                                       |
+| ----------------- | ------ | ------------------------------------------------- |
+| `entities`        | JSON   | Extracted entities with canonical mapping         |
+| `stance`          | JSON   | `{speaker, target, label, score, evidence_spans}` |
+| `topics`          | JSON   | Scored list of topics                             |
+| `top_topic_label` | string | Highest scoring topic                             |
+| `sentiment_label` | string | Positive/Negative/Neutral                         |
+| `sentiment_score` | float  | Confidence                                        |
+| `toxicity_score`  | float  | Confidence                                        |
+| `links`           | JSON   | URLs found                                        |
+| `domains`         | JSON   | Parsed domains                                    |
+| `language`        | string | Detected language                                 |
+| `style_features`  | JSON   | Exclamation count, all-caps ratio, hedges, etc.   |
+
+### Processing Rules
+
+* Support JSON, JSONL, or CSV formats
+* Coerce Telegram's `list-of-spans` format into a single string
+* Limit text length (default 8k characters)
+* Normalize entities to `{PERSON, ORG, LOC, MISC}`
+* Deduplicate mentions per message
 
 ## Configuration
 
@@ -311,6 +367,98 @@ graph LR
 - Text clipping at 8k characters
 - Batch processing with memory safeguards
 
+## Quote Handling & Attribution
+
+### Problem
+Messages can contain:
+- Author’s own words
+- Quoted opponents/allies
+- Forwarded messages
+- Mixed attributions
+
+Naive analysis falsely attributes quoted speech to the author.
+
+### Solution
+Treat messages as multi-speaker with span tagging:
+- Quote detection:
+  - Typographic quotes ("...", “...”) and quoted block lines (prefix ">")
+  - Forwarded metadata (forwarded_from)
+  - Signature markers (— NAME)
+- Span tagging:
+  - Each sentence labeled `author`, `quoted(speaker=unknown|known)`, or `forwarded`
+- Default stance rule:
+  - Exclude non-author spans unless there’s explicit framing
+
+### Configuration knobs
+```yaml
+processing:
+  quote_aware: true
+  quote:
+    detect_forwarded: true
+    detect_quoted_spans: true
+    max_quote_length: 2048
+    attribute_forwarded_to_source: true
+```
+
+### Evidence retention
+Each stance edge stores evidence spans: `{start, end, text, speaker, span_type, source}`. This enables audits and prevents over-attribution.
+
+## Contextual Stance Classification (Hybrid)
+
+### Approach
+1. Dependency-based rules (fast, interpretable):
+   - Parse author spans with spaCy
+   - Identify verbs/adjectives signaling stance: support, praise, condemn, oppose, criticize, corrupt, great
+   - Handle negations ("not support" → flipped polarity)
+   - Weight by dependency distance and hedges/modals
+2. Zero-shot fallback (MNLI):
+   - `facebook/bart-large-mnli` or `distilbart-mnli`
+   - Hypotheses: "The author expresses {support|oppose|neutral} toward {ENTITY}."
+3. Combined scoring:
+   - Agreement → high confidence; conflicts → downgrade to `neutral`/`unclear`
+
+### Event graph
+For each message, create edges:
+```
+Author → [stance edge] → Entity
+```
+Each edge includes: `label`, `score`, and `evidence_spans`.
+
+### Config example
+```yaml
+models:
+  stance: facebook/bart-large-mnli  # or distilbart-mnli
+processing:
+  stance:
+    threshold: 0.6
+    dep_rules_weight: 0.6
+    mnli_weight: 0.4
+    negative_words: [not, never, no]
+    support_verbs: [support, back, endorse, praise]
+    oppose_verbs: [oppose, criticize, condemn, attack]
+```
+
+## Topics — Hybrid Approach
+
+### Steps
+1. Ontology-based classification
+   - Curated `config/topics.json` with keywords; stable for longitudinal charts
+2. Unsupervised discovery
+   - Sentence embeddings + clustering (default: KMeans; optional: BERTopic/HDBSCAN)
+   - Extract key phrases per cluster
+3. Mapping clusters to ontology
+   - Zero-shot classification of clusters against ontology; unmatched → `NEW_TOPIC_X`
+4. Output fields
+   - Store both `ontology_topics` and `discovery_topics` per message
+
+### Example ontology
+```json
+[
+  {"label": "immigration", "keywords": ["immigration", "border"]},
+  {"label": "economy", "keywords": ["jobs", "inflation"]}
+]
+```
+
 ## Evaluation and Calibration
 
 ### Gold Set Creation
@@ -346,6 +494,31 @@ python scripts/calibrate.py \
 2. Update `aliases.json` with missed entity mappings
 3. Refine `topics.json` ontology from discovery clusters
 4. Retrain or switch models if systematic bias detected
+
+## Milestones
+
+| Milestone | Deliverable                                |
+| --------- | ------------------------------------------ |
+| M0        | Loader + NER + aliasing                    |
+| M1        | Sentiment + toxicity + style               |
+| M2        | Quote detection + speaker spans            |
+| M3        | Dependency-based stance                    |
+| M4        | Zero-shot stance integration               |
+| M5        | Topic hybrid system (ontology + discovery) |
+| M6        | Aggregations + sidecars                    |
+| M7        | Validation + calibration                   |
+| M8        | Optional dashboards                        |
+
+## Risks & Mitigations
+
+| Risk                         | Mitigation                                             |
+| ---------------------------- | ------------------------------------------------------ |
+| Over-attribution from quotes | Strict default: exclude quotes unless explicit framing |
+| Model bias                   | Document versions and thresholds; retrain periodically |
+| Entity explosion             | Cap entities per message; prioritize canonical ones    |
+| Runtime blowups              | Text clipping, batching, smaller MNLI models           |
+| Dependency bloat             | Optional features, extras, CI size gate                |
+| GPU variance                 | CPU-first defaults, runtime capability detection       |
 
 ## Performance, Caching, and Batch Sizing
 

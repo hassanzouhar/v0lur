@@ -1,0 +1,15 @@
+385M	.venv/lib/python3.11/site-packages/torch
+112M	.venv/lib/python3.11/site-packages/transformers
+112M	.venv/lib/python3.11/site-packages/pyarrow
+101M	.venv/lib/python3.11/site-packages/scipy
+ 88M	.venv/lib/python3.11/site-packages/llvmlite
+ 78M	.venv/lib/python3.11/site-packages/sympy
+ 73M	.venv/lib/python3.11/site-packages/pandas
+ 65M	.venv/lib/python3.11/site-packages/plotly
+ 54M	.venv/lib/python3.11/site-packages/en_core_web_md
+ 48M	.venv/lib/python3.11/site-packages/sklearn
+ 35M	.venv/lib/python3.11/site-packages/numpy
+ 34M	.venv/lib/python3.11/site-packages/7ae574991b77ef47acad__mypyc.cpython-311-darwin.so
+ 32M	.venv/lib/python3.11/site-packages/numba
+ 28M	.venv/lib/python3.11/site-packages/spacy
+ 22M	.venv/lib/python3.11/site-packages/mypy

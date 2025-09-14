@@ -1,0 +1,2 @@
+Total site-packages size:
+1.5G	.venv/lib/python3.11/site-packages
