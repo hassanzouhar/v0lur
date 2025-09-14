@@ -1,4 +1,4 @@
-.PHONY: help setup download-models run test lint security-audit eval calibrate clean clean-models
+.PHONY: help setup download-models run test lint security-audit eval calibrate clean clean-models verify-warp
 
 # Default target
 help:
@@ -11,6 +11,7 @@ help:
 	@echo "  security-audit - Run security audits (pip-audit, bandit)"
 	@echo "  eval           - Run evaluation on gold standard dataset"
 	@echo "  calibrate      - Generate calibration report"
+	@echo "  verify-warp    - Verify WARP.md conformance to spec"
 	@echo "  clean          - Remove outputs and temporary files"
 	@echo "  clean-models   - Remove downloaded model cache"
 
@@ -108,6 +109,10 @@ install-dev:
 	.venv/bin/pip install pre-commit ruff black mypy bandit pytest pytest-cov
 	.venv/bin/pre-commit install
 
+# Verify WARP.md conformance
+verify-warp:
+	.venv/bin/python scripts/verify_warp.py
+
 # CI targets
 ci-setup: setup install-dev
-ci-test: lint security-audit test
+ci-test: lint security-audit test verify-warp

@@ -1,1 +1,6 @@
+.DS_Store
+Makefile
+WARP.md
 .venv/
+.WARP.*
+out/
