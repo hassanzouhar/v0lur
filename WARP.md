@@ -212,13 +212,15 @@ io:
   id_col: message_id
   date_col: date
   out_path: out/posts_enriched.parquet
+  parquet_engine: fastparquet   # pyarrow optional
+  parquet_compression: zstd
 
 models:
   ner: dslim/bert-base-NER
   sentiment: cardiffnlp/twitter-roberta-base-sentiment-latest
   toxicity: unitary/toxic-bert
-  stance: facebook/bart-large-mnli
-  topic: facebook/bart-large-mnli
+  stance_zeroshot: facebook/bart-large-mnli  # or valhalla/distilbart-mnli-12-1
+  topic_embeddings: sentence-transformers/all-MiniLM-L6-v2
 
 processing:
   batch_size: 32
@@ -226,30 +228,15 @@ processing:
   quote_aware: true
   skip_langdetect: true
   max_entities_per_msg: 3
-  stance_threshold: 0.6
-
-resources:
-  aliases_path: config/aliases.json
-  topics_path: config/topics.json
-
-# Extended configuration with all options:
-topic:
-  ontology_path: config/topics.json
-  discovery:
-    enabled: true
-    method: kmeans           # hdbscan optional via extra
-    max_topics: 30
-    min_cluster_size: 20
-    labeler: tfidf_keywords  # or keybert if enabled
-
-processing:
+  
   stance:
     threshold: 0.6
     dep_rules_weight: 0.6
     mnli_weight: 0.4
-    negative_words: [not, never, no]
-    support_verbs: [support, back, endorse, praise]
-    oppose_verbs: [oppose, criticize, condemn, attack]
+    negative_words: [not, never, no, don't, doesn't, won't]
+    support_verbs: [support, back, endorse, praise, defend, champion]
+    oppose_verbs: [oppose, criticize, condemn, attack, denounce, reject]
+    hedge_words: [might, maybe, perhaps, possibly, seems, appears]
   
   quote:
     detect_forwarded: true
@@ -257,9 +244,19 @@ processing:
     max_quote_length: 2048
     attribute_forwarded_to_source: true
 
-io:
-  parquet_engine: fastparquet   # pyarrow optional
-  parquet_compression: zstd
+topic:
+  ontology_path: config/topics.json
+  discovery:
+    enabled: true
+    method: kmeans           # hdbscan optional via [topic-hdbscan] extra
+    max_topics: 30
+    min_cluster_size: 20
+    labeler: tfidf_keywords  # keybert optional
+    silhouette_threshold: 0.3
+
+resources:
+  aliases_path: config/aliases.json
+  topics_path: config/topics.json
 ```
 
 ### Entity Aliases (`config/aliases.json`)
@@ -571,37 +568,64 @@ Note: Two separate stance edges are created - one for the author's opinion and o
 
 ## Contextual Stance Classification (Hybrid)
 
-### Approach
-1. Dependency-based rules (fast, interpretable):
-   - Parse author spans with spaCy
-   - Identify verbs/adjectives signaling stance: support, praise, condemn, oppose, criticize, corrupt, great
-   - Handle negations ("not support" → flipped polarity)
-   - Weight by dependency distance and hedges/modals
-2. Zero-shot fallback (MNLI):
-   - `facebook/bart-large-mnli` or `distilbart-mnli`
-   - Hypotheses: "The author expresses {support|oppose|neutral} toward {ENTITY}."
-3. Combined scoring:
-   - Agreement → high confidence; conflicts → downgrade to `neutral`/`unclear`
+### Hybrid Approach
 
-### Event graph
-For each message, create edges:
+1. **Dependency-based rules** (fast, interpretable):
+   - Parse author spans with spaCy dependency parser
+   - Identify verbs/adjectives signaling stance using lexicons:
+     - Support verbs: *support, praise, endorse, back, defend*
+     - Oppose verbs: *oppose, criticize, condemn, attack, denounce*
+   - Handle negations: *"not support"* → flipped polarity
+   - Weight by dependency distance to target entity
+   - Modal/hedge down-weighting: *"might support"* → lower confidence
+
+2. **Zero-shot MNLI fallback**:
+   - Use `facebook/bart-large-mnli` or lighter `valhalla/distilbart-mnli-12-1`
+   - Template hypotheses:
+     > "The author expresses {support|oppose|neutral} toward {ENTITY}."
+   - Generate scores for each stance hypothesis
+
+3. **Fusion and thresholds**:
+   - Rules win on high-confidence matches (>0.8)
+   - MNLI used when rules are unclear or conflicting
+   - Default to `unclear` when both methods disagree or low confidence
+
+### Event Graph Structure
+
+Create per-message stance edges:
 ```
 Author → [stance edge] → Entity
 ```
-Each edge includes: `label`, `score`, and `evidence_spans`.
 
-### Config example
+Each edge contains:
+- **Label**: `support`, `oppose`, `neutral`, `unclear`
+- **Score**: Confidence (0.0-1.0)
+- **Evidence spans**: Text spans with attribution for audit
+- **Method**: `rules`, `mnli`, or `hybrid`
+
+### Speaker-Aware Attribution
+
+⚠️ **Critical**: Stance attribution excludes non-author spans unless explicitly enabled:
+- Default: Only analyze spans labeled as `author`
+- Quoted/forwarded spans excluded from stance edges
+- Separate stance edges created for identified quoted speakers
+
+### Configuration
+
 ```yaml
 models:
-  stance: facebook/bart-large-mnli  # or distilbart-mnli
+  stance_zeroshot: facebook/bart-large-mnli  # or valhalla/distilbart-mnli-12-1
+  
 processing:
   stance:
     threshold: 0.6
     dep_rules_weight: 0.6
     mnli_weight: 0.4
-    negative_words: [not, never, no]
-    support_verbs: [support, back, endorse, praise]
-    oppose_verbs: [oppose, criticize, condemn, attack]
+    negative_words: [not, never, no, don't, doesn't, won't]
+    support_verbs: [support, back, endorse, praise, defend, champion]
+    oppose_verbs: [oppose, criticize, condemn, attack, denounce, reject]
+    hedge_words: [might, maybe, perhaps, possibly, seems, appears]
+    distance_penalty: 0.1  # per dependency hop from entity
 ```
 
 ## Topics — Hybrid Approach

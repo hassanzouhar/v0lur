@@ -113,7 +113,7 @@ class WarpVerifier:
         }
         
         required_subkeys = {
-            'models': {'ner', 'sentiment', 'toxicity', 'stance'},
+            'models': {'ner', 'sentiment', 'toxicity', 'stance_zeroshot'},
             'processing': {'batch_size', 'prefer_gpu', 'quote_aware'},
             'resources': {'aliases_path', 'topics_path'}
         }
