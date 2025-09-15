@@ -1,0 +1,18 @@
+spec_section,required_elements,exists_in_WARP,action,details,owner
+Purpose,Section heading,True,✅ Present,Matches: ['Purpose and Scope'],doc-alignment
+Scope,Section heading,True,✅ Present,Matches: ['Purpose and Scope'],doc-alignment
+Data Model,Section heading,True,✅ Present,Matches: ['Data Model and Normalization'],doc-alignment
+Processing Stages,Section heading,True,✅ Present,Matches: ['Processing Stages'],doc-alignment
+Quote Handling & Attribution,Section heading,True,✅ Present,Matches: ['Quote Handling & Attribution'],doc-alignment
+Contextual Stance Classification,Section heading,True,✅ Present,Matches: ['Contextual Stance Classification'],doc-alignment
+Topics — Hybrid Approach,Section heading,True,✅ Present,"Matches: ['Topics — Hybrid Approach', 'Approach']",doc-alignment
+Links & Domains,Section heading,True,✅ Present,Matches: ['3.9 Links & Domains'],doc-alignment
+Style Features,Section heading,True,✅ Present,Matches: ['3.10 Style Features'],doc-alignment
+Aggregation Outputs,Section heading,True,✅ Present,Matches: ['Aggregation Outputs'],doc-alignment
+Config Example,Section heading,True,✅ Present,Matches: ['Config example'],doc-alignment
+Evaluation,Section heading,True,✅ Present,"Matches: ['Evaluation', 'Evaluation and Calibration']",doc-alignment
+Milestones,Section heading,True,✅ Present,Matches: ['Milestones'],doc-alignment
+Risks & Mitigations,Section heading,True,✅ Present,Matches: ['Risks & Mitigations'],doc-alignment
+Deliverables,Section heading,True,✅ Present,Matches: ['Phase 1 Deliverables'],doc-alignment
+Guiding Principles,Section heading,True,✅ Present,Matches: ['Guiding Principles'],doc-alignment
+Processing Stages,12-stage pipeline order,False,⚠️ Stage mismatch,"Spec: 11 stages, WARP: 12 stages",pipeline-alignment
