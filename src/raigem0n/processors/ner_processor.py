@@ -48,14 +48,20 @@ class NERProcessor:
         self.aliases = aliases
         logger.info(f"Loaded {len(aliases)} entity aliases")
 
-        # Create reverse lookup for aliases
+        # Create reverse lookup for aliases with type information
         self._alias_lookup = {}
         for canonical, config in aliases.items():
-            # Add canonical name
-            self._alias_lookup[canonical.lower()] = canonical
-            # Add all aliases
+            # Add canonical name with type info
+            self._alias_lookup[canonical.lower()] = {
+                "canonical": canonical,
+                "type": config.get("type", "MISC")
+            }
+            # Add all aliases with type info
             for alias in config.get("aliases", []):
-                self._alias_lookup[alias.lower()] = canonical
+                self._alias_lookup[alias.lower()] = {
+                    "canonical": canonical,
+                    "type": config.get("type", "MISC")
+                }
 
     def extract_entities(self, texts: List[str]) -> List[List[Dict[str, Any]]]:
         """Extract entities from texts."""
@@ -88,9 +94,6 @@ class NERProcessor:
         seen_entities = set()
 
         for entity in raw_entities:
-            # Normalize entity type
-            entity_type = self._normalize_entity_type(entity.get("entity_group", "MISC"))
-            
             # Get entity text
             entity_text = entity.get("word", "").strip()
             if not entity_text:
@@ -102,9 +105,25 @@ class NERProcessor:
             # Skip very short or clearly invalid entities
             if len(entity_text) < 2 or entity_text.isdigit():
                 continue
+            
+            # Skip common garbage entities that are often NER errors
+            garbage_entities = {
+                "the", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "by", "an", "a",
+                "anti", "pro", "non", "pre", "post", "de", "la", "el", "le", "les", "der", "die", "das",
+                "rep", "sen", "mr", "mrs", "ms", "dr", "prof", "jr", "sr", "ii", "iii", "iv", "show"
+            }
+            if entity_text.lower() in garbage_entities:
+                continue
+            
+            # Skip entities that are clearly partial words or tokens
+            if entity_text.lower() in {"iden", "ka", "po", "se", "ch", "charlie", "de"}:
+                continue
 
-            # Apply canonical mapping
-            canonical_entity = self._get_canonical_entity(entity_text, entity_type)
+            # Get initial entity type from NER model
+            initial_entity_type = self._normalize_entity_type(entity.get("entity_group", "MISC"))
+            
+            # Apply canonical mapping (this may override the entity type)
+            canonical_entity, entity_type = self._get_canonical_entity(entity_text, initial_entity_type)
             
             # Avoid duplicates (case-insensitive)
             entity_key = f"{canonical_entity.lower()}:{entity_type}"
@@ -147,15 +166,19 @@ class NERProcessor:
         
         return type_mapping.get(entity_type, "MISC")
 
-    def _get_canonical_entity(self, entity_text: str, entity_type: str) -> str:
-        """Map entity text to canonical form using aliases."""
+    def _get_canonical_entity(self, entity_text: str, entity_type: str) -> Tuple[str, str]:
+        """Map entity text to canonical form using aliases.
+        
+        Returns:
+            Tuple[str, str]: (canonical_entity_name, final_entity_type)
+        """
         if not self.aliases:
-            return entity_text
+            return entity_text, entity_type
 
         # Direct lookup
-        canonical = self._alias_lookup.get(entity_text.lower())
-        if canonical:
-            return canonical
+        alias_info = self._alias_lookup.get(entity_text.lower())
+        if alias_info:
+            return alias_info["canonical"], alias_info["type"]
 
         # Fuzzy matching for person names (simple approach)
         if entity_type == "PERSON":
@@ -163,11 +186,11 @@ class NERProcessor:
             entity_parts = entity_text.split()
             if len(entity_parts) > 1:
                 last_name = entity_parts[-1].lower()
-                for alias, canonical in self._alias_lookup.items():
-                    if last_name in alias.lower().split():
-                        return canonical
+                for alias_key, alias_info in self._alias_lookup.items():
+                    if last_name in alias_key.split():
+                        return alias_info["canonical"], alias_info["type"]
 
-        return entity_text
+        return entity_text, entity_type
 
     def process_dataframe(self, df: pd.DataFrame, text_column: str = "text") -> pd.DataFrame:
         """Process dataframe and add entity information."""

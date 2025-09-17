@@ -1,37 +1,1337 @@
 {
-  "Donald Trump": {
-    "aliases": ["Trump", "President Trump", "DJT", "Donald J. Trump", "45th President"],
+  "Adam Schiff": {
     "type": "PERSON",
-    "id": "Q22686"
+    "id": 1,
+    "aliases": []
   },
-  "Joe Biden": {
-    "aliases": ["Biden", "President Biden", "Joseph Biden", "46th President"],
+  "Al Qaeda": {
+    "type": "ORG",
+    "id": 2,
+    "aliases": []
+  },
+  "Al Sharpton": {
     "type": "PERSON",
-    "id": "Q6279"
+    "id": 3,
+    "aliases": []
+  },
+  "Alex Vindman": {
+    "type": "PERSON",
+    "id": 4,
+    "aliases": []
+  },
+  "Alexandria Ocasio-Cortez": {
+    "type": "PERSON",
+    "id": 5,
+    "aliases": [
+      "AOC"
+    ]
+  },
+  "Andrew McCabe": {
+    "type": "PERSON",
+    "id": 6,
+    "aliases": []
+  },
+  "ANTIFA": {
+    "type": "ORG",
+    "id": 7,
+    "aliases": []
+  },
+  "Apple Podcasts": {
+    "type": "ORG",
+    "id": 8,
+    "aliases": []
+  },
+  "Arizona": {
+    "type": "LOC",
+    "id": 9,
+    "aliases": []
+  },
+  "Atlanta": {
+    "type": "LOC",
+    "id": 10,
+    "aliases": []
+  },
+  "Baltimore": {
+    "type": "LOC",
+    "id": 11,
+    "aliases": []
+  },
+  "Barack Obama": {
+    "type": "PERSON",
+    "id": 12,
+    "aliases": [
+      "obama",
+      "the obamas"
+    ]
+  },
+  "Ben Shapiro": {
+    "type": "PERSON",
+    "id": 13,
+    "aliases": [
+      "@realBenShapiro"
+    ]
+  },
+  "Benghazi": {
+    "type": "LOC",
+    "id": 14,
+    "aliases": []
+  },
+  "Bernie Sanders": {
+    "type": "PERSON",
+    "id": 15,
+    "aliases": []
+  },
+  "Beto O'Rourke": {
+    "type": "PERSON",
+    "id": 16,
+    "aliases": []
+  },
+  "Bill Barr": {
+    "type": "PERSON",
+    "id": 17,
+    "aliases": []
+  },
+  "Bill Clinton": {
+    "type": "PERSON",
+    "id": 18,
+    "aliases": []
+  },
+  "Bill De Blasio": {
+    "type": "PERSON",
+    "id": 19,
+    "aliases": []
+  },
+  "Bill Taylor": {
+    "type": "PERSON",
+    "id": 20,
+    "aliases": [
+      "Ambassador Taylor"
+    ]
+  },
+  "Bowe Bergdahl": {
+    "type": "PERSON",
+    "id": 21,
+    "aliases": []
+  },
+  "Brett Kavanaugh": {
+    "type": "PERSON",
+    "id": 22,
+    "aliases": [
+      "justice brett kavanaugh",
+      "justice kavanaugh"
+    ]
+  },
+  "Bruce Ohr": {
+    "type": "PERSON",
+    "id": 23,
+    "aliases": []
+  },
+  "Burisma Holdings": {
+    "type": "ORG",
+    "id": 24,
+    "aliases": []
+  },
+  "CBP": {
+    "type": "ORG",
+    "id": 25,
+    "aliases": [
+      "Customs and Border Protection"
+    ]
+  },
+  "CDC": {
+    "type": "ORG",
+    "id": 26,
+    "aliases": []
+  },
+  "CNN": {
+    "type": "ORG",
+    "id": 27,
+    "aliases": []
+  },
+  "California": {
+    "type": "LOC",
+    "id": 28,
+    "aliases": []
+  },
+  "Candace Owens": {
+    "type": "PERSON",
+    "id": 29,
+    "aliases": [
+      "@CandaceOwens"
+    ]
+  },
+  "Catherine Pugh": {
+    "type": "PERSON",
+    "id": 30,
+    "aliases": []
+  },
+  "Charlie Kirk": {
+    "type": "PERSON",
+    "id": 31,
+    "aliases": [
+      "@CharlieKirk"
+    ]
+  },
+  "Charlottesville": {
+    "type": "LOC",
+    "id": 32,
+    "aliases": []
+  },
+  "Chelsea Clinton": {
+    "type": "PERSON",
+    "id": 33,
+    "aliases": []
+  },
+  "Chicago": {
+    "type": "LOC",
+    "id": 34,
+    "aliases": []
+  },
+  "Chick-fil-A": {
+    "type": "ORG",
+    "id": 35,
+    "aliases": []
+  },
+  "China": {
+    "type": "LOC",
+    "id": 36,
+    "aliases": []
+  },
+  "Christine Blasey Ford": {
+    "type": "PERSON",
+    "id": 37,
+    "aliases": []
+  },
+  "Chuck Schumer": {
+    "type": "PERSON",
+    "id": 38,
+    "aliases": []
+  },
+  "Cleveland": {
+    "type": "LOC",
+    "id": 39,
+    "aliases": []
+  },
+  "Clinton Foundation": {
+    "type": "ORG",
+    "id": 40,
+    "aliases": []
+  },
+  "Coca-Cola": {
+    "type": "ORG",
+    "id": 41,
+    "aliases": [
+      "Coke"
+    ]
+  },
+  "Cory Booker": {
+    "type": "PERSON",
+    "id": 42,
+    "aliases": []
+  },
+  "Covington Catholic High School": {
+    "type": "ORG",
+    "id": 43,
+    "aliases": []
+  },
+  "Cuba": {
+    "type": "LOC",
+    "id": 44,
+    "aliases": []
+  },
+  "D.C.": {
+    "type": "LOC",
+    "id": 45,
+    "aliases": [
+      "DC"
+    ]
+  },
+  "DACA": {
+    "type": "MISC",
+    "id": 46,
+    "aliases": []
+  },
+  "Daily Caller": {
+    "type": "ORG",
+    "id": 47,
+    "aliases": []
+  },
+  "Dallas": {
+    "type": "LOC",
+    "id": 48,
+    "aliases": []
+  },
+  "Dan Bongino": {
+    "type": "PERSON",
+    "id": 49,
+    "aliases": [
+      "@DBongino"
+    ]
+  },
+  "Dan Crenshaw": {
+    "type": "PERSON",
+    "id": 50,
+    "aliases": []
+  },
+  "Daniel Cameron": {
+    "type": "PERSON",
+    "id": 51,
+    "aliases": []
+  },
+  "David Duke": {
+    "type": "PERSON",
+    "id": 52,
+    "aliases": []
   },
   "Democratic Party": {
-    "aliases": ["Democrats", "Dems", "Democratic Party", "DNC"],
     "type": "ORG",
-    "id": "Q29552"
+    "id": 53,
+    "aliases": [
+      "democrats",
+      "dnc",
+      "the democrats",
+      "democrat party",
+      "house democrats"
+    ]
   },
-  "Republican Party": {
-    "aliases": ["Republicans", "GOP", "Republican Party", "Grand Old Party"],
-    "type": "ORG",
-    "id": "Q29468"
-  },
-  "United States": {
-    "aliases": ["US", "USA", "America", "United States of America"],
+  "Denver": {
     "type": "LOC",
-    "id": "Q30"
+    "id": 54,
+    "aliases": []
+  },
+  "Detroit": {
+    "type": "LOC",
+    "id": 55,
+    "aliases": []
+  },
+  "Dianne Feinstein": {
+    "type": "PERSON",
+    "id": 56,
+    "aliases": []
+  },
+  "Donald Trump": {
+    "type": "PERSON",
+    "id": 57,
+    "aliases": [
+      "trump",
+      "president trump",
+      "donald j. trump",
+      "@real_DonaldJTrump"
+    ]
+  },
+  "Donald Trump Jr.": {
+    "type": "PERSON",
+    "id": 58,
+    "aliases": [
+      "@TrumpJr",
+      "don jr",
+      "donald trump jr"
+    ]
+  },
+  "Dylan Wheeler": {
+    "type": "PERSON",
+    "id": 59,
+    "aliases": []
+  },
+  "El Chapo": {
+    "type": "PERSON",
+    "id": 60,
+    "aliases": []
+  },
+  "El Paso": {
+    "type": "LOC",
+    "id": 61,
+    "aliases": []
+  },
+  "El Salvador": {
+    "type": "LOC",
+    "id": 62,
+    "aliases": []
+  },
+  "Electoral College": {
+    "type": "MISC",
+    "id": 63,
+    "aliases": []
+  },
+  "Elijah Cummings": {
+    "type": "PERSON",
+    "id": 64,
+    "aliases": []
+  },
+  "Elizabeth Warren": {
+    "type": "PERSON",
+    "id": 65,
+    "aliases": []
+  },
+  "Eric Ciamarella": {
+    "type": "PERSON",
+    "id": 66,
+    "aliases": []
+  },
+  "Eric Holder": {
+    "type": "PERSON",
+    "id": 67,
+    "aliases": []
+  },
+  "Eric Swalwell": {
+    "type": "PERSON",
+    "id": 68,
+    "aliases": []
+  },
+  "Eric Trump": {
+    "type": "PERSON",
+    "id": 69,
+    "aliases": []
   },
   "European Union": {
-    "aliases": ["EU", "Europe", "European Union"],
     "type": "ORG",
-    "id": "Q458"
+    "id": 70,
+    "aliases": [
+      "eu"
+    ]
+  },
+  "Fiona Hill": {
+    "type": "PERSON",
+    "id": 71,
+    "aliases": []
+  },
+  "Florida": {
+    "type": "LOC",
+    "id": 72,
+    "aliases": []
+  },
+  "Fox News": {
+    "type": "ORG",
+    "id": 73,
+    "aliases": []
+  },
+  "France": {
+    "type": "LOC",
+    "id": 74,
+    "aliases": []
+  },
+  "Fresno": {
+    "type": "LOC",
+    "id": 75,
+    "aliases": []
+  },
+  "Fusion GPS": {
+    "type": "ORG",
+    "id": 76,
+    "aliases": []
+  },
+  "Gatorade": {
+    "type": "PRODUCT",
+    "id": 77,
+    "aliases": []
+  },
+  "George Soros": {
+    "type": "PERSON",
+    "id": 78,
+    "aliases": []
+  },
+  "George Washington": {
+    "type": "PERSON",
+    "id": 79,
+    "aliases": []
+  },
+  "Georgetown University": {
+    "type": "ORG",
+    "id": 80,
+    "aliases": []
+  },
+  "Georgia": {
+    "type": "LOC",
+    "id": 81,
+    "aliases": []
+  },
+  "Google": {
+    "type": "ORG",
+    "id": 82,
+    "aliases": []
+  },
+  "Gordon Sondland": {
+    "type": "PERSON",
+    "id": 83,
+    "aliases": []
+  },
+  "Green New Deal": {
+    "type": "MISC",
+    "id": 84,
+    "aliases": []
+  },
+  "Guantanamo Bay": {
+    "type": "LOC",
+    "id": 85,
+    "aliases": []
+  },
+  "H.R. McMaster": {
+    "type": "PERSON",
+    "id": 86,
+    "aliases": []
+  },
+  "Hartford": {
+    "type": "LOC",
+    "id": 87,
+    "aliases": []
+  },
+  "Hayden Williams": {
+    "type": "PERSON",
+    "id": 88,
+    "aliases": []
+  },
+  "Hillary Clinton": {
+    "type": "PERSON",
+    "id": 89,
+    "aliases": [
+      "the clintons"
+    ]
+  },
+  "Home Depot": {
+    "type": "ORG",
+    "id": 90,
+    "aliases": []
+  },
+  "Hong Kong": {
+    "type": "LOC",
+    "id": 91,
+    "aliases": []
+  },
+  "Hunter Biden": {
+    "type": "PERSON",
+    "id": 92,
+    "aliases": [
+      "the bidens"
+    ]
+  },
+  "ICE": {
+    "type": "ORG",
+    "id": 93,
+    "aliases": []
+  },
+  "ISIS": {
+    "type": "ORG",
+    "id": 94,
+    "aliases": []
+  },
+  "Ilhan Omar": {
+    "type": "PERSON",
+    "id": 95,
+    "aliases": []
+  },
+  "Illinois": {
+    "type": "LOC",
+    "id": 96,
+    "aliases": []
+  },
+  "Indiana": {
+    "type": "LOC",
+    "id": 97,
+    "aliases": []
+  },
+  "Instagram": {
+    "type": "ORG",
+    "id": 98,
+    "aliases": []
+  },
+  "Iowa": {
+    "type": "LOC",
+    "id": 99,
+    "aliases": []
+  },
+  "Iran": {
+    "type": "LOC",
+    "id": 100,
+    "aliases": []
+  },
+  "Israel": {
+    "type": "LOC",
+    "id": 101,
+    "aliases": []
+  },
+  "J. Christopher Stevens": {
+    "type": "PERSON",
+    "id": 102,
+    "aliases": []
+  },
+  "James Baker": {
+    "type": "PERSON",
+    "id": 103,
+    "aliases": []
+  },
+  "James Clapper": {
+    "type": "PERSON",
+    "id": 104,
+    "aliases": [
+      "Clapper"
+    ]
+  },
+  "James Comey": {
+    "type": "PERSON",
+    "id": 105,
+    "aliases": [
+      "jim comey",
+      "Comey"
+    ]
+  },
+  "Jared Kushner": {
+    "type": "PERSON",
+    "id": 106,
+    "aliases": []
+  },
+  "Japan": {
+    "type": "LOC",
+    "id": 107,
+    "aliases": []
+  },
+  "Jeb Bush": {
+    "type": "PERSON",
+    "id": 108,
+    "aliases": []
+  },
+  "Jeffrey Epstein": {
+    "type": "PERSON",
+    "id": 109,
+    "aliases": [
+      "jeffery epstein"
+    ]
+  },
+  "Jim Jordan": {
+    "type": "PERSON",
+    "id": 110,
+    "aliases": []
+  },
+  "Jim Mattis": {
+    "type": "PERSON",
+    "id": 111,
+    "aliases": []
+  },
+  "Joe Biden": {
+    "type": "PERSON",
+    "id": 112,
+    "aliases": [
+      "biden"
+    ]
+  },
+  "John Brennan": {
+    "type": "PERSON",
+    "id": 113,
+    "aliases": []
+  },
+  "John Durham": {
+    "type": "PERSON",
+    "id": 114,
+    "aliases": []
+  },
+  "John Kelly": {
+    "type": "PERSON",
+    "id": 115,
+    "aliases": []
+  },
+  "John Kerry": {
+    "type": "PERSON",
+    "id": 116,
+    "aliases": []
+  },
+  "John Podesta": {
+    "type": "PERSON",
+    "id": 117,
+    "aliases": []
+  },
+  "Jordan": {
+    "type": "LOC",
+    "id": 118,
+    "aliases": []
+  },
+  "Joy Behar": {
+    "type": "PERSON",
+    "id": 119,
+    "aliases": []
+  },
+  "Jussie Smollett": {
+    "type": "PERSON",
+    "id": 120,
+    "aliases": []
+  },
+  "KKK": {
+    "type": "ORG",
+    "id": 121,
+    "aliases": []
+  },
+  "Kamala Harris": {
+    "type": "PERSON",
+    "id": 122,
+    "aliases": []
+  },
+  "Kate Steinle": {
+    "type": "PERSON",
+    "id": 123,
+    "aliases": []
+  },
+  "Keith Ellison": {
+    "type": "PERSON",
+    "id": 124,
+    "aliases": []
+  },
+  "Kentucky": {
+    "type": "LOC",
+    "id": 125,
+    "aliases": []
+  },
+  "Kenya": {
+    "type": "LOC",
+    "id": 126,
+    "aliases": []
+  },
+  "Kevin Clinesmith": {
+    "type": "PERSON",
+    "id": 127,
+    "aliases": []
+  },
+  "Kurt Volker": {
+    "type": "PERSON",
+    "id": 128,
+    "aliases": []
+  },
+  "LGBTQ": {
+    "type": "ORG",
+    "id": 129,
+    "aliases": []
+  },
+  "Laura Cooper": {
+    "type": "PERSON",
+    "id": 130,
+    "aliases": []
+  },
+  "Linda Sarsour": {
+    "type": "PERSON",
+    "id": 131,
+    "aliases": []
+  },
+  "Lindsey Graham": {
+    "type": "PERSON",
+    "id": 132,
+    "aliases": []
+  },
+  "Lisa Page": {
+    "type": "PERSON",
+    "id": 133,
+    "aliases": [
+      "Page"
+    ]
+  },
+  "Lois Lerner": {
+    "type": "PERSON",
+    "id": 134,
+    "aliases": []
+  },
+  "Loretta Lynch": {
+    "type": "PERSON",
+    "id": 135,
+    "aliases": []
+  },
+  "Los Angeles": {
+    "type": "LOC",
+    "id": 136,
+    "aliases": []
+  },
+  "Louisiana": {
+    "type": "LOC",
+    "id": 137,
+    "aliases": []
+  },
+  "Marie Yovanovitch": {
+    "type": "PERSON",
+    "id": 138,
+    "aliases": [
+      "maria yovanovitch",
+      "marie yavonovitch"
+    ]
+  },
+  "Mark Zaid": {
+    "type": "PERSON",
+    "id": 139,
+    "aliases": []
+  },
+  "Marist Poll": {
+    "type": "ORG",
+    "id": 140,
+    "aliases": []
+  },
+  "Martha's Vineyard": {
+    "type": "LOC",
+    "id": 141,
+    "aliases": []
+  },
+  "Massachusetts": {
+    "type": "LOC",
+    "id": 142,
+    "aliases": []
+  },
+  "Matt Bevin": {
+    "type": "PERSON",
+    "id": 143,
+    "aliases": []
+  },
+  "Maxine Waters": {
+    "type": "PERSON",
+    "id": 144,
+    "aliases": []
+  },
+  "Melania Trump": {
+    "type": "PERSON",
+    "id": 145,
+    "aliases": []
+  },
+  "Mexico": {
+    "type": "LOC",
+    "id": 146,
+    "aliases": []
+  },
+  "Michael Bloomberg": {
+    "type": "PERSON",
+    "id": 147,
+    "aliases": []
+  },
+  "Michael Flynn": {
+    "type": "PERSON",
+    "id": 148,
+    "aliases": [
+      "general flynn",
+      "gen mike flynn"
+    ]
+  },
+  "Michael Horowitz": {
+    "type": "PERSON",
+    "id": 149,
+    "aliases": []
+  },
+  "Michelle Obama": {
+    "type": "PERSON",
+    "id": 150,
+    "aliases": []
+  },
+  "Michigan": {
+    "type": "LOC",
+    "id": 151,
+    "aliases": []
+  },
+  "Middle East": {
+    "type": "LOC",
+    "id": 152,
+    "aliases": []
+  },
+  "Mike Pence": {
+    "type": "PERSON",
+    "id": 153,
+    "aliases": []
+  },
+  "Mississippi": {
+    "type": "LOC",
+    "id": 154,
+    "aliases": []
+  },
+  "Mollie Tibbetts": {
+    "type": "PERSON",
+    "id": 155,
+    "aliases": []
+  },
+  "Montgomery County": {
+    "type": "LOC",
+    "id": 156,
+    "aliases": []
   },
   "NATO": {
-    "aliases": ["North Atlantic Treaty Organization", "Alliance"],
     "type": "ORG",
-    "id": "Q7184"
+    "id": 157,
+    "aliases": []
+  },
+  "NBC": {
+    "type": "ORG",
+    "id": 158,
+    "aliases": []
+  },
+  "NPR": {
+    "type": "ORG",
+    "id": 159,
+    "aliases": []
+  },
+  "NRA": {
+    "type": "ORG",
+    "id": 160,
+    "aliases": []
+  },
+  "NYC": {
+    "type": "LOC",
+    "id": 161,
+    "aliases": [
+      "New York City"
+    ]
+  },
+  "Nancy Pelosi": {
+    "type": "PERSON",
+    "id": 162,
+    "aliases": [
+      "speaker pelosi"
+    ]
+  },
+  "Nathan Phillips": {
+    "type": "PERSON",
+    "id": 163,
+    "aliases": []
+  },
+  "New York": {
+    "type": "LOC",
+    "id": 164,
+    "aliases": []
+  },
+  "New Zealand": {
+    "type": "LOC",
+    "id": 165,
+    "aliases": []
+  },
+  "Nick Sandmann": {
+    "type": "PERSON",
+    "id": 166,
+    "aliases": []
+  },
+  "North Carolina": {
+    "type": "LOC",
+    "id": 167,
+    "aliases": []
+  },
+  "North Korea": {
+    "type": "LOC",
+    "id": 168,
+    "aliases": []
+  },
+  "Oakland": {
+    "type": "LOC",
+    "id": 169,
+    "aliases": []
+  },
+  "Ohio": {
+    "type": "LOC",
+    "id": 170,
+    "aliases": []
+  },
+  "Ohio State University": {
+    "type": "ORG",
+    "id": 171,
+    "aliases": []
+  },
+  "Oklahoma": {
+    "type": "LOC",
+    "id": 172,
+    "aliases": []
+  },
+  "Open Society Foundation": {
+    "type": "ORG",
+    "id": 173,
+    "aliases": []
+  },
+  "Oregon": {
+    "type": "LOC",
+    "id": 174,
+    "aliases": []
+  },
+  "PBS": {
+    "type": "ORG",
+    "id": 175,
+    "aliases": []
+  },
+  "Palm Beach County": {
+    "type": "LOC",
+    "id": 176,
+    "aliases": []
+  },
+  "Paris Climate Agreement": {
+    "type": "MISC",
+    "id": 177,
+    "aliases": []
+  },
+  "Paul Manafort": {
+    "type": "PERSON",
+    "id": 178,
+    "aliases": []
+  },
+  "Pennsylvania": {
+    "type": "LOC",
+    "id": 179,
+    "aliases": []
+  },
+  "Pete Buttigieg": {
+    "type": "PERSON",
+    "id": 180,
+    "aliases": []
+  },
+  "Peter Strzok": {
+    "type": "PERSON",
+    "id": 181,
+    "aliases": [
+      "Strzok"
+    ]
+  },
+  "Philadelphia": {
+    "type": "LOC",
+    "id": 182,
+    "aliases": []
+  },
+  "Planned Parenthood": {
+    "type": "ORG",
+    "id": 183,
+    "aliases": []
+  },
+  "PragerU": {
+    "type": "ORG",
+    "id": 184,
+    "aliases": []
+  },
+  "Ralph Northam": {
+    "type": "PERSON",
+    "id": 185,
+    "aliases": []
+  },
+  "Rashida Tlaib": {
+    "type": "PERSON",
+    "id": 186,
+    "aliases": []
+  },
+  "Republican Party": {
+    "type": "ORG",
+    "id": 187,
+    "aliases": [
+      "gop",
+      "republicans",
+      "the republicans",
+      "house republicans",
+      "senate republicans"
+    ]
+  },
+  "Rob Smith": {
+    "type": "PERSON",
+    "id": 188,
+    "aliases": []
+  },
+  "Robert Mueller": {
+    "type": "PERSON",
+    "id": 189,
+    "aliases": [
+      "Mueller"
+    ]
+  },
+  "Roger Stone": {
+    "type": "PERSON",
+    "id": 190,
+    "aliases": []
+  },
+  "Roman Polanski": {
+    "type": "PERSON",
+    "id": 191,
+    "aliases": []
+  },
+  "Ronald Reagan": {
+    "type": "PERSON",
+    "id": 192,
+    "aliases": []
+  },
+  "Ronil Singh": {
+    "type": "PERSON",
+    "id": 193,
+    "aliases": [
+      "Officer Singh"
+    ]
+  },
+  "Rosemont Capital": {
+    "type": "ORG",
+    "id": 194,
+    "aliases": []
+  },
+  "Ross Ulbricht": {
+    "type": "PERSON",
+    "id": 195,
+    "aliases": []
+  },
+  "Rudy Giuliani": {
+    "type": "PERSON",
+    "id": 196,
+    "aliases": [
+      "Giuliani"
+    ]
+  },
+  "Russia": {
+    "type": "LOC",
+    "id": 197,
+    "aliases": []
+  },
+  "Samantha Power": {
+    "type": "PERSON",
+    "id": 198,
+    "aliases": []
+  },
+  "San Francisco": {
+    "type": "LOC",
+    "id": 199,
+    "aliases": []
+  },
+  "Santa Clarita": {
+    "type": "LOC",
+    "id": 200,
+    "aliases": []
+  },
+  "Scotland": {
+    "type": "LOC",
+    "id": 201,
+    "aliases": []
+  },
+  "Sean Misko": {
+    "type": "PERSON",
+    "id": 202,
+    "aliases": []
+  },
+  "Senate Judiciary Committee": {
+    "type": "ORG",
+    "id": 203,
+    "aliases": []
+  },
+  "Somalia": {
+    "type": "LOC",
+    "id": 204,
+    "aliases": []
+  },
+  "South Carolina": {
+    "type": "LOC",
+    "id": 205,
+    "aliases": []
+  },
+  "Southern Poverty Law Center": {
+    "type": "ORG",
+    "id": 206,
+    "aliases": []
+  },
+  "St. Louis": {
+    "type": "LOC",
+    "id": 207,
+    "aliases": []
+  },
+  "Steele Dossier": {
+    "type": "MISC",
+    "id": 208,
+    "aliases": []
+  },
+  "Steven Crowder": {
+    "type": "PERSON",
+    "id": 209,
+    "aliases": [
+      "@Steven_Crowder"
+    ]
+  },
+  "Supreme Court": {
+    "type": "ORG",
+    "id": 210,
+    "aliases": []
+  },
+  "Susan Rice": {
+    "type": "PERSON",
+    "id": 211,
+    "aliases": []
+  },
+  "Syria": {
+    "type": "LOC",
+    "id": 212,
+    "aliases": []
+  },
+  "TSA": {
+    "type": "ORG",
+    "id": 213,
+    "aliases": []
+  },
+  "Taliban": {
+    "type": "ORG",
+    "id": 214,
+    "aliases": []
+  },
+  "Texas": {
+    "type": "LOC",
+    "id": 215,
+    "aliases": []
+  },
+  "The Daily Wire": {
+    "type": "ORG",
+    "id": 216,
+    "aliases": []
+  },
+  "The Squad": {
+    "type": "ORG",
+    "id": 217,
+    "aliases": []
+  },
+  "Thomas Homan": {
+    "type": "PERSON",
+    "id": 218,
+    "aliases": []
+  },
+  "Thomas Jefferson": {
+    "type": "PERSON",
+    "id": 219,
+    "aliases": []
+  },
+  "Thousand Oaks": {
+    "type": "LOC",
+    "id": 220,
+    "aliases": []
+  },
+  "Tim Morrison": {
+    "type": "PERSON",
+    "id": 221,
+    "aliases": []
+  },
+  "Tom Steyer": {
+    "type": "PERSON",
+    "id": 222,
+    "aliases": []
+  },
+  "Tony Maycon Munoz-Mendez": {
+    "type": "PERSON",
+    "id": 223,
+    "aliases": []
+  },
+  "Tulsi Gabbard": {
+    "type": "PERSON",
+    "id": 224,
+    "aliases": []
+  },
+  "Turkey": {
+    "type": "LOC",
+    "id": 225,
+    "aliases": []
+  },
+  "Turning Point USA": {
+    "type": "ORG",
+    "id": 226,
+    "aliases": [
+      "tpusa",
+      "turning point"
+    ]
+  },
+  "Twitter": {
+    "type": "ORG",
+    "id": 227,
+    "aliases": []
+  },
+  "U.S. Congress": {
+    "type": "ORG",
+    "id": 228,
+    "aliases": [
+      "Congress"
+    ]
+  },
+  "U.S. State Department": {
+    "type": "ORG",
+    "id": 229,
+    "aliases": []
+  },
+  "UBS": {
+    "type": "ORG",
+    "id": 230,
+    "aliases": []
+  },
+  "UCLA": {
+    "type": "ORG",
+    "id": 231,
+    "aliases": []
+  },
+  "Ukraine": {
+    "type": "LOC",
+    "id": 232,
+    "aliases": []
+  },
+  "United Nations": {
+    "type": "ORG",
+    "id": 233,
+    "aliases": []
+  },
+  "United States": {
+    "type": "LOC",
+    "id": 234,
+    "aliases": [
+      "usa",
+      "america",
+      "us"
+    ]
+  },
+  "University of California, Berkeley": {
+    "type": "ORG",
+    "id": 235,
+    "aliases": [
+      "UCBerkeley"
+    ]
+  },
+  "Valerie Jarrett": {
+    "type": "PERSON",
+    "id": 236,
+    "aliases": []
+  },
+  "Venezuela": {
+    "type": "LOC",
+    "id": 237,
+    "aliases": []
+  },
+  "Virginia": {
+    "type": "LOC",
+    "id": 238,
+    "aliases": []
+  },
+  "Vladimir Putin": {
+    "type": "PERSON",
+    "id": 239,
+    "aliases": [
+      "Putin"
+    ]
+  },
+  "Walmart": {
+    "type": "ORG",
+    "id": 240,
+    "aliases": []
+  },
+  "Walter Mondale": {
+    "type": "PERSON",
+    "id": 241,
+    "aliases": []
+  },
+  "Washington": {
+    "type": "LOC",
+    "id": 242,
+    "aliases": []
+  },
+  "Washington Post": {
+    "type": "ORG",
+    "id": 243,
+    "aliases": []
+  },
+  "Wayfair": {
+    "type": "ORG",
+    "id": 244,
+    "aliases": []
+  },
+  "White House": {
+    "type": "LOC",
+    "id": 245,
+    "aliases": []
+  },
+  "Whoopi Goldberg": {
+    "type": "PERSON",
+    "id": 246,
+    "aliases": []
+  },
+  "Wisconsin": {
+    "type": "LOC",
+    "id": 247,
+    "aliases": []
+  },
+  "YouTube": {
+    "type": "ORG",
+    "id": 248,
+    "aliases": []
   }
 }

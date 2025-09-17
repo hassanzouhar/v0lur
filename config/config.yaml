@@ -18,7 +18,7 @@ processing:
   prefer_gpu: false                       # true for CUDA/MPS
   quote_aware: true                       # critical for attribution
   skip_langdetect: false                  # true if monolingual
-  max_entities_per_msg: 3
+  max_entities_per_msg: 5
   stance_threshold: 0.6                   # precision over recall
   max_text_length: 8192                   # clip very long messages
 
