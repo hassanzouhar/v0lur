@@ -6,3 +6,4 @@ WARP.md
 .venv/
 .WARP.*
 out/
+__pycache__/
