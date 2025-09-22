@@ -20,6 +20,9 @@ click>=8.1.0
 tqdm>=4.66.0
 python-dotenv>=1.0.0
 
+# CLI UI
+textual>=0.48.0,<1.0.0
+
 # URL/domain processing
 tldextract>=3.6.0
 
