@@ -141,6 +141,11 @@ class Config:
         return self.get("processing.stance_threshold", 0.6)
 
     @property
+    def topic_threshold(self) -> float:
+        """Minimum confidence threshold for topic classification."""
+        return self.get("processing.topic_threshold", 0.3)
+
+    @property
     def max_text_length(self) -> int:
         """Maximum text length to process."""
         return self.get("processing.max_text_length", 8192)

@@ -118,6 +118,11 @@ class NERProcessor:
             # Skip entities that are clearly partial words or tokens
             if entity_text.lower() in {"iden", "ka", "po", "se", "ch", "charlie", "de"}:
                 continue
+            
+            # Filter Charlie Kirk mentions in message attributions
+            if self._is_attribution_mention(entity_text, original_text):
+                logger.debug(f"Filtered attribution mention: '{entity_text}' from message attribution")
+                continue
 
             # Get initial entity type from NER model
             initial_entity_type = self._normalize_entity_type(entity.get("entity_group", "MISC"))
@@ -191,6 +196,85 @@ class NERProcessor:
                         return alias_info["canonical"], alias_info["type"]
 
         return entity_text, entity_type
+
+    def _is_attribution_mention(self, entity_text: str, original_text: str) -> bool:
+        """Check if entity mention appears in message attribution patterns.
+        
+        This filters out mentions that appear in attribution lines like:
+        - "Charlie Kirk (Twitter)"
+        - "Retweeted by Charlie Kirk" 
+        - "@realDonaldTrump (retweeted by Charlie Kirk)"
+        - Author bylines at start/end of messages
+        
+        Args:
+            entity_text: The entity text to check
+            original_text: The full message text
+            
+        Returns:
+            bool: True if this appears to be an attribution mention that should be filtered
+        """
+        import re
+        
+        entity_lower = entity_text.lower()
+        
+        # Check if this is Charlie Kirk or Twitter in attribution context
+        is_charlie_kirk = "charlie" in entity_lower and "kirk" in entity_lower
+        is_twitter = entity_lower == "twitter"
+        
+        if not (is_charlie_kirk or is_twitter):
+            return False
+        
+        # Common attribution patterns that include Charlie Kirk and/or Twitter
+        attribution_patterns = [
+            # Twitter attribution patterns
+            r'charlie\s+kirk\s*\(twitter\)',
+            r'charlie\s+kirk\s*\(retweeted\)',
+            r'retweeted\s+by\s+charlie\s+kirk',
+            r'charlie\s+kirk\s*\(.*\)\s*$',  # End of line with parenthetical
+            r'^charlie\s+kirk\s*\(',           # Start of line attribution
+            r'—\s*charlie\s+kirk',             # Em dash attribution
+            r'by\s+charlie\s+kirk\s*$',        # "by Charlie Kirk" at end
+            # Twitter-specific patterns in attribution context
+            r'\(twitter\)',                   # (Twitter) in parentheses
+            r'^.*\(twitter\)\s*$',             # Line ending with (Twitter)
+            r'—\s*open\s+tweet',              # "— Open Tweet" attribution
+        ]
+        
+        # Check if entity appears in any attribution pattern
+        for pattern in attribution_patterns:
+            # Look for the pattern in the text
+            matches = list(re.finditer(pattern, original_text, re.IGNORECASE))
+            for match in matches:
+                # For Charlie Kirk mentions
+                if is_charlie_kirk:
+                    # Find where "charlie kirk" appears in the original text
+                    charlie_matches = list(re.finditer(r'charlie\s+kirk', original_text, re.IGNORECASE))
+                    for charlie_match in charlie_matches:
+                        # If this Charlie Kirk mention overlaps with an attribution pattern, filter it
+                        if (match.start() <= charlie_match.start() <= match.end() or
+                            match.start() <= charlie_match.end() <= match.end()):
+                            return True
+                
+                # For Twitter mentions
+                elif is_twitter:
+                    # Find where "twitter" appears in the original text
+                    twitter_matches = list(re.finditer(r'twitter', original_text, re.IGNORECASE))
+                    for twitter_match in twitter_matches:
+                        # If this Twitter mention overlaps with an attribution pattern, filter it
+                        if (match.start() <= twitter_match.start() <= match.end() or
+                            match.start() <= twitter_match.end() <= match.end()):
+                            return True
+        
+        # Also filter if "Charlie Kirk" or "Twitter" appears at the very start of the message (likely attribution)
+        text_start = original_text[:50].lower()  # First 50 chars
+        
+        if is_charlie_kirk and text_start.startswith("charlie kirk") and ("twitter" in text_start or "(" in text_start):
+            return True
+        
+        if is_twitter and ("charlie kirk (twitter)" in text_start or text_start.endswith("(twitter)")):
+            return True
+            
+        return False
 
     def process_dataframe(self, df: pd.DataFrame, text_column: str = "text") -> pd.DataFrame:
         """Process dataframe and add entity information."""

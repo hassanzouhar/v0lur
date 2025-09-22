@@ -25,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from raigem0n.config import Config
 from raigem0n.data_loader import DataLoader
-from raigem0n.processors import NERProcessor
+from raigem0n.processors import NERProcessor, SentimentProcessor, StyleProcessor, TopicProcessor, ToxicityProcessor, StanceProcessor, LinksProcessor
 
 
 def setup_logging(level: str = "INFO", redact_sensitive: bool = True) -> None:
@@ -175,9 +175,107 @@ class TelegramAnalyzer:
         entity_stats = ner_processor.get_entity_stats(df)
         logger.info(f"Entity extraction stats: {entity_stats}")
         
-        # Step 4: Save intermediate results
+        # Step 4: Sentiment Analysis
         logger.info("=" * 50)
-        logger.info("Saving results")
+        logger.info("Step 4: Sentiment Analysis")
+        logger.info("=" * 50)
+        
+        sentiment_processor = SentimentProcessor(
+            model_name=self.config.sentiment_model,
+            device=device,
+        )
+        
+        df = sentiment_processor.process_dataframe(df)
+        sentiment_stats = sentiment_processor.get_sentiment_stats(df)
+        logger.info(f"Sentiment analysis stats: {sentiment_stats}")
+        
+        # Step 5: Toxicity Detection
+        logger.info("=" * 50)
+        logger.info("Step 5: Toxicity Detection")
+        logger.info("=" * 50)
+        
+        toxicity_processor = ToxicityProcessor(
+            model_name=self.config.toxicity_model,
+            device=device,
+        )
+        
+        df = toxicity_processor.process_dataframe(df)
+        toxicity_stats = toxicity_processor.get_toxicity_stats(df)
+        logger.info(f"Toxicity analysis stats: {toxicity_stats}")
+        
+        # Step 6: Stance Classification
+        logger.info("=" * 50)
+        logger.info("Step 6: Stance Classification")
+        logger.info("=" * 50)
+        
+        stance_processor = StanceProcessor(
+            model_name=self.config.stance_model,
+            stance_threshold=self.config.stance_threshold,
+            device=device,
+        )
+        
+        df = stance_processor.process_dataframe(df)
+        stance_stats = stance_processor.get_stance_stats(df)
+        logger.info(f"Stance classification stats: {stance_stats}")
+        
+        # Step 7: Style Feature Extraction
+        logger.info("=" * 50)
+        logger.info("Step 7: Style Feature Extraction")
+        logger.info("=" * 50)
+        
+        style_processor = StyleProcessor()
+        
+        df = style_processor.process_dataframe(df)
+        style_stats = style_processor.get_style_stats(df)
+        logger.info(f"Style feature extraction stats: {style_stats}")
+        
+        # Export style features to JSON
+        style_json_path = output_path / "channel_style_features.json"
+        style_processor.export_style_features_json(df, style_json_path)
+        
+        # Step 8: Topic Classification
+        logger.info("=" * 50)
+        logger.info("Step 8: Topic Classification")
+        logger.info("=" * 50)
+        
+        topic_processor = TopicProcessor(
+            model_name=self.config.topic_model,
+            confidence_threshold=self.config.topic_threshold,
+            device=device,
+            batch_size=self.config.batch_size // 2,  # Use smaller batch for topic classification
+        )
+        
+        # Load custom topics if available
+        custom_topics = self.config.load_topics()
+        if custom_topics:
+            topic_labels = [topic.get("label", topic.get("name", "")) for topic in custom_topics]
+            topic_processor.topics = topic_labels
+            logger.info(f"Using {len(topic_labels)} custom topics")
+        
+        df = topic_processor.process_dataframe(df)
+        topic_stats = topic_processor.get_topic_stats(df)
+        logger.info(f"Topic classification stats: {topic_stats}")
+        
+        # Export topic analysis to JSON
+        topic_json_path = output_path / "channel_topic_analysis.json"
+        topic_processor.export_topic_analysis_json(df, topic_json_path)
+        
+        # Step 9: Links & Domains Extraction
+        logger.info("=" * 50)
+        logger.info("Step 9: Links & Domains Extraction")
+        logger.info("=" * 50)
+        
+        links_processor = LinksProcessor()
+        
+        df = links_processor.process_dataframe(df)
+        
+        # Export domain analysis to JSON
+        domain_json_path = output_path / "channel_domain_analysis.json"
+        links_processor.export_domain_analysis(df, domain_json_path)
+        
+        # Step 10: Save results
+        logger.info("=" * 50)
+        logger.info("Step 10: Saving results")
         logger.info("=" * 50)
         
         # Save main enriched dataset
@@ -193,6 +291,43 @@ class TelegramAnalyzer:
             entity_counts_df = pd.DataFrame(list(entity_stats["top_entities"].items()), 
                                            columns=["entity", "count"])
             entity_counts_df.to_csv(output_path / "channel_entity_counts.csv", index=False)
+        
+        # Save most toxic messages
+        if "toxicity_score" in df.columns:
+            toxic_messages = toxicity_processor.get_most_toxic_messages(df, top_k=20)
+            if not toxic_messages.empty:
+                toxic_messages.to_csv(output_path / "channel_top_toxic_messages.csv", index=False)
+        
+        # Save domain counts
+        if "total_links" in df.columns:
+            # Aggregate domain counts across all messages
+            all_domain_counts = {}
+            for _, row in df.iterrows():
+                if row['total_links'] > 0:
+                    for domain, count in row['domain_counts'].items():
+                        all_domain_counts[domain] = all_domain_counts.get(domain, 0) + count
+            
+            if all_domain_counts:
+                domain_counts_df = pd.DataFrame(list(all_domain_counts.items()), 
+                                               columns=["domain", "count"])
+                domain_counts_df = domain_counts_df.sort_values('count', ascending=False)
+                domain_counts_df.to_csv(output_path / "channel_domain_counts.csv", index=False)
+        
+        # Save entity stance counts and timeline
+        if "stance_edges" in df.columns:
+            entity_stance_counts = create_entity_stance_counts(df)
+            if not entity_stance_counts.empty:
+                entity_stance_counts.to_csv(output_path / "channel_entity_stance_counts.csv", index=False)
+            
+            entity_stance_daily = create_entity_stance_daily(df)
+            if not entity_stance_daily.empty:
+                entity_stance_daily.to_csv(output_path / "channel_entity_stance_daily.csv", index=False)
+        
+        # Save topic share daily
+        if "top_topic_label" in df.columns:
+            topic_share_daily = create_topic_share_daily(df)
+            if not topic_share_daily.empty:
+                topic_share_daily.to_csv(output_path / "channel_topic_share_daily.csv", index=False)
         
         logger.info("=" * 50)
         logger.info("Analysis completed successfully!")
@@ -226,18 +361,174 @@ def create_daily_summary(df: pd.DataFrame) -> pd.DataFrame:
     """Create daily summary statistics."""
     df["date_only"] = df["date"].dt.date
     
-    daily_stats = df.groupby("date_only").agg({
+    # Base aggregations
+    agg_dict = {
         "msg_id": "count",
         "text": lambda x: x.str.len().mean(),
         "entity_count": "mean",
-    }).round(2)
+    }
     
-    daily_stats.columns = ["message_count", "avg_text_length", "avg_entities"]
+    # Add sentiment aggregations if available
+    if "sentiment_score" in df.columns:
+        agg_dict["sentiment_score"] = "mean"
+    
+    # Add toxicity aggregations if available
+    if "toxicity_score" in df.columns:
+        agg_dict["toxicity_score"] = ["mean", "max"]
+    
+    # Add links aggregations if available
+    if "total_links" in df.columns:
+        agg_dict["total_links"] = "sum"
+        agg_dict["unique_domains"] = "sum"
+    
+    daily_stats = df.groupby("date_only").agg(agg_dict).round(3)
+    
+    # Flatten column names
+    daily_stats.columns = ["_".join(col).strip("_") if isinstance(col, tuple) else col 
+                          for col in daily_stats.columns]
+    
+    # Rename columns to match expected output format
+    column_mapping = {
+        "msg_id_count": "message_count",
+        "text_<lambda>": "avg_text_length", 
+        "entity_count_mean": "avg_entities",
+        "sentiment_score_mean": "avg_sentiment",
+        "toxicity_score_mean": "avg_toxicity",
+        "toxicity_score_max": "max_toxicity",
+        "total_links_sum": "total_links",
+        "unique_domains_sum": "total_unique_domains"
+    }
+    
+    daily_stats = daily_stats.rename(columns=column_mapping)
     daily_stats = daily_stats.reset_index()
     daily_stats["date"] = daily_stats["date_only"].astype(str)
     daily_stats = daily_stats.drop("date_only", axis=1)
     
     return daily_stats
+
+
+def create_entity_stance_counts(df: pd.DataFrame) -> pd.DataFrame:
+    """Create entity stance counts aggregation."""
+    stance_counts = {}
+    
+    for _, row in df.iterrows():
+        if row.get('stance_edges') and isinstance(row['stance_edges'], list):
+            for edge in row['stance_edges']:
+                if isinstance(edge, dict):
+                    entity = edge.get('target', '')
+                    label = edge.get('label', 'neutral')
+                    score = edge.get('score', 0.0)
+                    
+                    if entity and label in ['support', 'oppose']:
+                        key = (entity, label)
+                        if key not in stance_counts:
+                            stance_counts[key] = {'count': 0, 'total_score': 0.0}
+                        stance_counts[key]['count'] += 1
+                        stance_counts[key]['total_score'] += score
+    
+    if not stance_counts:
+        return pd.DataFrame()
+    
+    # Convert to DataFrame
+    rows = []
+    for (entity, label), data in stance_counts.items():
+        avg_score = data['total_score'] / data['count'] if data['count'] > 0 else 0.0
+        rows.append({
+            'entity': entity,
+            'stance': label,
+            'count': data['count'],
+            'avg_score': round(avg_score, 3)
+        })
+    
+    result_df = pd.DataFrame(rows)
+    return result_df.sort_values(['entity', 'count'], ascending=[True, False])
+
+
+def create_entity_stance_daily(df: pd.DataFrame) -> pd.DataFrame:
+    """Create daily entity stance timeline."""
+    if 'date' not in df.columns:
+        return pd.DataFrame()
+    
+    df_copy = df.copy()
+    df_copy['date_only'] = df_copy['date'].dt.date
+    
+    daily_stance = []
+    
+    for date in df_copy['date_only'].unique():
+        day_df = df_copy[df_copy['date_only'] == date]
+        
+        entity_stances = {}
+        for _, row in day_df.iterrows():
+            if row.get('stance_edges') and isinstance(row['stance_edges'], list):
+                for edge in row['stance_edges']:
+                    if isinstance(edge, dict):
+                        entity = edge.get('target', '')
+                        label = edge.get('label', 'neutral')
+                        score = edge.get('score', 0.0)
+                        
+                        if entity and label in ['support', 'oppose']:
+                            key = (entity, label)
+                            if key not in entity_stances:
+                                entity_stances[key] = {'count': 0, 'total_score': 0.0}
+                            entity_stances[key]['count'] += 1
+                            entity_stances[key]['total_score'] += score
+        
+        for (entity, label), data in entity_stances.items():
+            avg_score = data['total_score'] / data['count'] if data['count'] > 0 else 0.0
+            daily_stance.append({
+                'date': str(date),
+                'entity': entity,
+                'stance': label,
+                'count': data['count'],
+                'avg_score': round(avg_score, 3)
+            })
+    
+    if not daily_stance:
+        return pd.DataFrame()
+    
+    result_df = pd.DataFrame(daily_stance)
+    return result_df.sort_values(['date', 'entity', 'stance'])
+
+
+def create_topic_share_daily(df: pd.DataFrame) -> pd.DataFrame:
+    """Create daily topic distribution."""
+    if 'date' not in df.columns or 'top_topic_label' not in df.columns:
+        return pd.DataFrame()
+    
+    df_copy = df.copy()
+    df_copy['date_only'] = df_copy['date'].dt.date
+    
+    # Filter out messages without topics
+    df_topics = df_copy[df_copy['top_topic_label'].notna() & (df_copy['top_topic_label'] != '')]
+    
+    if df_topics.empty:
+        return pd.DataFrame()
+    
+    # Group by date and topic, count messages
+    topic_daily = df_topics.groupby(['date_only', 'top_topic_label']).agg({
+        'msg_id': 'count'
+    }).reset_index()
+    
+    # Calculate total messages per day for percentage
+    daily_totals = df_topics.groupby('date_only')['msg_id'].count().to_dict()
+    
+    topic_daily['total_messages_day'] = topic_daily['date_only'].map(daily_totals)
+    topic_daily['percentage'] = (topic_daily['msg_id'] / topic_daily['total_messages_day'] * 100).round(2)
+    
+    # Rename columns
+    topic_daily = topic_daily.rename(columns={
+        'date_only': 'date',
+        'top_topic_label': 'topic',
+        'msg_id': 'count'
+    })
+    
+    # Convert date to string
+    topic_daily['date'] = topic_daily['date'].astype(str)
+    
+    # Drop intermediate column
+    topic_daily = topic_daily.drop('total_messages_day', axis=1)
+    
+    return topic_daily.sort_values(['date', 'count'], ascending=[True, False])
 
 
 def main() -> None:

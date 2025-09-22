@@ -10,16 +10,17 @@ models:
   ner: dslim/bert-base-NER
   sentiment: cardiffnlp/twitter-roberta-base-sentiment-latest
   toxicity: unitary/toxic-bert
-  stance: facebook/bart-large-mnli        # or distilbart-mnli for speed
-  topic: facebook/bart-large-mnli
+  stance: valhalla/distilbart-mnli-12-1   # smaller, faster model
+  topic: valhalla/distilbart-mnli-12-1
 
 processing:
   batch_size: 32                          # 8-16 for CPU, 32-128 for GPU
-  prefer_gpu: false                       # true for CUDA/MPS
+  prefer_gpu: true                       # true for CUDA/MPS
   quote_aware: true                       # critical for attribution
   skip_langdetect: false                  # true if monolingual
   max_entities_per_msg: 5
   stance_threshold: 0.6                   # precision over recall
+  topic_threshold: 0.3                    # minimum confidence for topic assignment
   max_text_length: 8192                   # clip very long messages
 
 resources:
