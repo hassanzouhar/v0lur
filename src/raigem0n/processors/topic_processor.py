@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class TopicProcessor:
-    """Classify text content into predefined topic categories."""
+    """Classify text content using hybrid ontology-based + discovery-based approach."""
 
     def __init__(
         self,
@@ -20,6 +20,8 @@ class TopicProcessor:
         batch_size: int = 16,
         confidence_threshold: float = 0.3,
         custom_topics: Optional[List[str]] = None,
+        enable_discovery: bool = False,
+        discovery_params: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize topic processor.
         
@@ -29,11 +31,15 @@ class TopicProcessor:
             batch_size: Batch size for processing
             confidence_threshold: Minimum confidence for topic assignment
             custom_topics: Custom topic labels to use instead of defaults
+            enable_discovery: Whether to enable unsupervised topic discovery
+            discovery_params: Parameters for discovery topic processor
         """
         self.model_name = model_name
         self.device = device
         self.batch_size = batch_size
         self.confidence_threshold = confidence_threshold
+        self.enable_discovery = enable_discovery
+        self.discovery_params = discovery_params or {}
         
         # Default topic categories for political/social media analysis
         self.default_topics = [
@@ -62,6 +68,29 @@ class TopicProcessor:
         self.topics = custom_topics or self.default_topics
         self.classifier = None
         
+        # Discovery processor
+        self.discovery_processor = None
+        if self.enable_discovery:
+            self._init_discovery_processor()
+    
+    def _init_discovery_processor(self) -> None:
+        """Initialize the discovery topic processor."""
+        from .discovery_topic_processor import DiscoveryTopicProcessor
+        
+        # Set default discovery parameters
+        default_params = {
+            'embedding_model': 'all-MiniLM-L6-v2',
+            'min_cluster_size': 10,
+            'min_samples': 5,
+            'device': self.device
+        }
+        
+        # Update with user-provided parameters
+        params = {**default_params, **self.discovery_params}
+        
+        logger.info("Initializing discovery topic processor")
+        self.discovery_processor = DiscoveryTopicProcessor(**params)
+
     def load_model(self) -> None:
         """Load the zero-shot classification model."""
         logger.info(f"Loading topic classification model: {self.model_name}")
@@ -221,29 +250,52 @@ class TopicProcessor:
         # Extract texts for batch processing
         texts = df[text_column].tolist()
         
-        # Classify all texts
+        # Ontology-based topic classification
+        logger.info("Running ontology-based topic classification...")
         all_results = self.classify_batch(texts)
         
         # Add results to dataframe
         df = df.copy()
         
-        # Add topic classification results as JSON column
-        df["topic_classification"] = all_results
+        # Add ontology topic classification results
+        df["ontology_topic_classification"] = all_results
+        df["ontology_topic_label"] = [r["primary_topic"] for r in all_results]
+        df["ontology_topic_confidence"] = [r["primary_confidence"] for r in all_results]
+        df["ontology_topic_count"] = [r["topic_count"] for r in all_results]
         
-        # Add key columns for easier analysis
-        df["primary_topic"] = [r["primary_topic"] for r in all_results]
-        df["primary_topic_confidence"] = [r["primary_confidence"] for r in all_results]
-        df["topic_count"] = [r["topic_count"] for r in all_results]
+        # Discovery-based topic classification (if enabled)
+        if self.enable_discovery and self.discovery_processor:
+            logger.info("Running discovery-based topic classification...")
+            df = self.discovery_processor.process_dataframe(df, text_column)
+            
+            # Map discovery topics to ontology topics
+            if hasattr(self.discovery_processor, 'bertopic_model') and self.discovery_processor.bertopic_model:
+                topic_mapping = self.discovery_processor.map_to_ontology_topics(
+                    self.topics, 
+                    threshold=0.3
+                )
+                df["discovery_to_ontology_mapping"] = df["discovery_topic_id"].map(topic_mapping).fillna("other")
+        
+        # Create combined topic labels (backward compatibility)
+        df["topic_classification"] = df["ontology_topic_classification"]
+        df["primary_topic"] = df["ontology_topic_label"]
+        df["primary_topic_confidence"] = df["ontology_topic_confidence"]
+        df["topic_count"] = df["ontology_topic_count"]
         
         # Log summary statistics
-        topic_distribution = df["primary_topic"].value_counts()
-        avg_confidence = df["primary_topic_confidence"].mean()
+        topic_distribution = df["ontology_topic_label"].value_counts()
+        avg_confidence = df["ontology_topic_confidence"].mean()
         confident_classifications = sum(1 for r in all_results if r["primary_confidence"] >= self.confidence_threshold)
         
-        logger.info(f"Topic classification completed.")
+        logger.info(f"Ontology topic classification completed.")
         logger.info(f"Topic distribution: {dict(topic_distribution.head(10))}")
         logger.info(f"Average confidence: {avg_confidence:.3f}")
         logger.info(f"Confident classifications: {confident_classifications}/{len(df)} ({confident_classifications/len(df)*100:.1f}%)")
+        
+        if self.enable_discovery:
+            discovery_stats = self.discovery_processor.get_discovery_stats(df) if self.discovery_processor else {}
+            logger.info(f"Discovery topics found: {discovery_stats.get('unique_topics', 0)}")
+            logger.info(f"Discovery topic coverage: {discovery_stats.get('topic_coverage', 0):.1f}%")
         
         return df
 

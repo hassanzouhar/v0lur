@@ -1,5 +1,7 @@
 # Telegram Stance & Language Analysis Pipeline — Updated Development Spec
 
+**🔒 Memory-Safe & Fault-Tolerant Edition**
+
 ## 0) Purpose
 
 Build a **neutral, reproducible analytics pipeline** to analyze a public Telegram channel and answer:
@@ -73,16 +75,29 @@ Columns:
 
 ## 3) Processing Stages
 
+**🔒 Memory-Safe Architecture:** All processing stages now include checkpoint/resume functionality, memory monitoring, and graceful error handling to prevent crashes and data loss.
+
 ### 3.1 Load & Normalize
 
 * Support JSON, JSONL, or CSV formats.
-* Coerce Telegram’s `list-of-spans` format into a single string.
+* Coerce Telegram's `list-of-spans` format into a single string.
 * Limit text length (default 8k characters).
+* **🔒 Checkpointing:** Data saved after loading and normalization
+* **📊 Memory tracking:** Monitor memory usage during data loading
 
 ### 3.2 Language Detection
 
 * Default to `langdetect`.
 * Skip with `--skip-langdetect` if data is monolingual.
+* **🔒 Checkpointing:** Results cached to prevent re-detection on resume
+
+### 3.2.5 Quote Detection and Speaker Attribution
+
+* **NEW STEP:** Multi-speaker span tagging for attribution accuracy
+* Detect typographic quotes, block quotes, forwarded metadata
+* Label spans as `author`, `quoted`, or `forwarded`
+* **🔒 Checkpointing:** Quote analysis results saved for resume
+* **Critical for spec compliance:** Prevents false attribution of quoted content
 
 ### 3.3 NER
 
@@ -347,13 +362,52 @@ resources:
 
 ---
 
-## 15) Guiding Principles
+## 15) Memory-Safe Architecture & Fault Tolerance
+
+### 🔒 Checkpoint System
+
+* **Automatic saving:** Results saved after each processing step
+* **Resume capability:** Pipeline resumes from last completed step on restart
+* **Memory monitoring:** Real-time tracking of memory usage with psutil
+* **Graceful degradation:** Fallback mechanisms for memory-intensive operations
+
+### 🛡️ Error Isolation
+
+* **BERTopic wrapper:** Memory-safe topic discovery with timeout protection
+* **Model cleanup:** Explicit memory release between processing steps  
+* **Garbage collection:** Forced cleanup to prevent memory accumulation
+* **Bus Error prevention:** Apple Silicon compatibility improvements
+
+### 📁 Checkpoint Structure
+
+```
+out/run-YYYYMMDD-HHMM/
+├── checkpoints/
+│   ├── data_loading_checkpoint.parquet
+│   ├── language_detection_checkpoint.parquet
+│   ├── quote_detection_checkpoint.parquet
+│   ├── entity_extraction_checkpoint.parquet
+│   ├── sentiment_analysis_checkpoint.parquet
+│   ├── toxicity_detection_checkpoint.parquet
+│   ├── stance_classification_checkpoint.parquet
+│   ├── style_extraction_checkpoint.parquet
+│   ├── topic_classification_checkpoint.parquet
+│   ├── link_extraction_checkpoint.parquet
+│   └── pipeline_status.json
+└── [final outputs]
+```
+
+---
+
+## 16) Guiding Principles
 
 * **Neutrality by design**: default to `unclear` when ambiguous.
 * **Transparency**: evidence spans stored with every stance edge.
 * **Hybrid thinking**: fixed ontology for stability, unsupervised discovery for novelty.
 * **Speaker-aware**: never mix author words with quoted or forwarded voices.
 * **Iterative refinement**: top entities and clusters logged for alias/topic updates.
+* **🔒 Fault tolerance**: automatic checkpointing and graceful error recovery.
+* **📊 Memory safety**: monitoring and cleanup to prevent crashes.
 
 ---
 

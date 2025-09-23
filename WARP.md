@@ -23,6 +23,7 @@ The pipeline must prioritize **attribution accuracy**, **transparency**, and **c
 * Normalize Telegram data (JSON/CSV).
 * Entity extraction and aliasing to canonical forms.
 * Stance classification per entity, with context-aware attribution.
+* **🔒 Memory-safe processing** with automatic checkpoints and resume capability.
 * Hybrid **topic classification**:
 
   * Stable ontology for time series reporting.
@@ -33,6 +34,7 @@ The pipeline must prioritize **attribution accuracy**, **transparency**, and **c
 * Aggregation outputs and visual sidecars.
 * GPU acceleration (MPS for Apple, CUDA for Nvidia).
 * CLI + config file driven.
+* **🛡️ Fault tolerance** with graceful error recovery.
 
 ### Future extensions
 
@@ -47,6 +49,8 @@ The pipeline must prioritize **attribution accuracy**, **transparency**, and **c
 * **Hybrid thinking**: Fixed ontology for stability, unsupervised discovery for novelty
 * **Speaker-aware**: Never mix author words with quoted or forwarded voices
 * **Iterative refinement**: Top entities and clusters logged for alias/topic updates
+* **🔒 Fault tolerance**: Automatic checkpointing and graceful error recovery
+* **📊 Memory safety**: Real-time monitoring and cleanup to prevent crashes
 
 ⚠️ **Attribution accuracy is critical** - avoid over-interpretation of quoted material.
 
@@ -769,7 +773,16 @@ processing:
   batch_size: 16              # Reduce if OOM errors
   max_text_length: 8192       # Clip very long messages
   max_entities_per_msg: 3     # Prevent entity explosion
+  enable_checkpoints: true    # Automatic checkpointing
+  checkpoint_cleanup: true    # Force garbage collection
 ```
+
+**🔒 Memory-Safe Features:**
+- **Automatic checkpointing**: Results saved after each processing step
+- **Resume capability**: Pipeline resumes from last completed step on crash
+- **Memory monitoring**: Real-time tracking with psutil
+- **Graceful degradation**: Fallback for memory-intensive operations
+- **Bus Error prevention**: Apple Silicon compatibility improvements
 
 ### Caching Strategy
 ```bash

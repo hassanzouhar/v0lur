@@ -22,6 +22,12 @@ processing:
   stance_threshold: 0.6                   # precision over recall
   topic_threshold: 0.3                    # minimum confidence for topic assignment
   max_text_length: 8192                   # clip very long messages
+  enable_topic_discovery: true            # enable unsupervised topic discovery
+  topic_discovery:
+    min_cluster_size: 10                   # minimum cluster size for HDBSCAN
+    min_samples: 5                         # minimum samples for clustering
+    n_neighbors: 15                        # UMAP neighbors
+    n_components: 5                        # UMAP dimensions
 
 resources:
   aliases_path: config/aliases.json

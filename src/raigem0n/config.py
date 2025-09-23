@@ -149,6 +149,16 @@ class Config:
     def max_text_length(self) -> int:
         """Maximum text length to process."""
         return self.get("processing.max_text_length", 8192)
+    
+    @property
+    def enable_topic_discovery(self) -> bool:
+        """Whether to enable unsupervised topic discovery."""
+        return self.get("processing.enable_topic_discovery", False)
+    
+    @property
+    def topic_discovery(self) -> Dict[str, Any]:
+        """Topic discovery configuration parameters."""
+        return self.get("processing.topic_discovery", {})
 
     # Resource Configuration
     @property

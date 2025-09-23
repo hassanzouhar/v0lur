@@ -7,6 +7,7 @@ from .stance_processor import StanceProcessor
 from .quote_processor import QuoteProcessor
 from .style_processor import StyleProcessor
 from .topic_processor import TopicProcessor
+from .discovery_topic_processor import DiscoveryTopicProcessor
 from .links_processor import LinksProcessor
 
 __all__ = [
@@ -17,5 +18,6 @@ __all__ = [
     "QuoteProcessor",
     "StyleProcessor",
     "TopicProcessor",
+    "DiscoveryTopicProcessor",
     "LinksProcessor",
 ]

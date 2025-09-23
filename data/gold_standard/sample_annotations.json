@@ -1,0 +1,259 @@
+[
+  {
+    "message_id": 3,
+    "text": "This is your daily reminder that the best that Barack Obama could do to prevent Russian meddling was telling Putin to \"Cut it out\"\n\nPresident Trump has:\n\nImposed crippling sanctions\n\nExpelled Russian ambassadors\n\nStrengthened NATO against Putin's wishes\n\nObama was WEAK on Russia!",
+    "ground_truth": {
+      "spans": [
+        {
+          "start": 0,
+          "end": 118,
+          "text": "This is your daily reminder that the best that Barack Obama could do to prevent Russian meddling was telling Putin to",
+          "span_type": "author",
+          "speaker": "author",
+          "confidence": 1.0
+        },
+        {
+          "start": 118,
+          "end": 130,
+          "text": "Cut it out",
+          "span_type": "quoted",
+          "speaker": "Barack Obama",
+          "confidence": 1.0,
+          "attribution_context": "Obama's response to Russian meddling"
+        },
+        {
+          "start": 130,
+          "end": 280,
+          "text": "\n\nPresident Trump has:\n\nImposed crippling sanctions\n\nExpelled Russian ambassadors\n\nStrengthened NATO against Putin's wishes\n\nObama was WEAK on Russia!",
+          "span_type": "author",
+          "speaker": "author",
+          "confidence": 1.0
+        }
+      ],
+      "entities": [
+        {
+          "text": "Barack Obama",
+          "start": 52,
+          "end": 64,
+          "type": "PERSON",
+          "canonical_name": "Barack Obama"
+        },
+        {
+          "text": "Russian",
+          "start": 88,
+          "end": 95,
+          "type": "MISC",
+          "canonical_name": "Russia"
+        },
+        {
+          "text": "Putin",
+          "start": 110,
+          "end": 115,
+          "type": "PERSON",
+          "canonical_name": "Vladimir Putin"
+        },
+        {
+          "text": "President Trump",
+          "start": 132,
+          "end": 147,
+          "type": "PERSON",
+          "canonical_name": "Donald Trump"
+        },
+        {
+          "text": "Russian",
+          "start": 169,
+          "end": 176,
+          "type": "MISC",
+          "canonical_name": "Russia"
+        },
+        {
+          "text": "NATO",
+          "start": 217,
+          "end": 221,
+          "type": "ORG",
+          "canonical_name": "NATO"
+        },
+        {
+          "text": "Putin",
+          "start": 230,
+          "end": 235,
+          "type": "PERSON", 
+          "canonical_name": "Vladimir Putin"
+        },
+        {
+          "text": "Obama",
+          "start": 244,
+          "end": 249,
+          "type": "PERSON",
+          "canonical_name": "Barack Obama"
+        },
+        {
+          "text": "Russia",
+          "start": 262,
+          "end": 268,
+          "type": "LOC",
+          "canonical_name": "Russia"
+        }
+      ],
+      "stance_edges": [
+        {
+          "speaker": "author",
+          "target": "Barack Obama",
+          "label": "oppose",
+          "confidence": 0.9,
+          "span_evidence": [0, 130],
+          "reasoning": "Criticizes Obama's response as inadequate"
+        },
+        {
+          "speaker": "author", 
+          "target": "Donald Trump",
+          "label": "support",
+          "confidence": 0.85,
+          "span_evidence": [132, 243],
+          "reasoning": "Lists Trump's achievements positively"
+        },
+        {
+          "speaker": "author",
+          "target": "Vladimir Putin",
+          "label": "oppose", 
+          "confidence": 0.8,
+          "span_evidence": [217, 243],
+          "reasoning": "Portrays Putin as adversary needing to be opposed"
+        }
+      ]
+    },
+    "metadata": {
+      "annotator_id": "human_annotator_1",
+      "annotation_time": "2025-09-22T17:00:00Z",
+      "difficulty": "medium",
+      "error_types": ["quote_attribution"],
+      "notes": "Complex message with indirect quote and multiple entities"
+    }
+  },
+  {
+    "message_id": 2,
+    "text": "Finally able to share!\n\nI'm excited to announce that my new podcast THE CHARLIE KIRK SHOW launches this Wednesday exclusively on Apple Podcasts\n\nI'll announce my INCREDIBLE first guest tomorrow!\n\nI'd be honored if you were one of my first subscribers!\n\nhttps://podcasts.apple.com/us/podcast/the-charlie-kirk-show/id1460600818",
+    "ground_truth": {
+      "spans": [
+        {
+          "start": 0,
+          "end": 339,
+          "text": "Finally able to share!\n\nI'm excited to announce that my new podcast THE CHARLIE KIRK SHOW launches this Wednesday exclusively on Apple Podcasts\n\nI'll announce my INCREDIBLE first guest tomorrow!\n\nI'd be honored if you were one of my first subscribers!\n\nhttps://podcasts.apple.com/us/podcast/the-charlie-kirk-show/id1460600818",
+          "span_type": "author",
+          "speaker": "author",
+          "confidence": 1.0
+        }
+      ],
+      "entities": [
+        {
+          "text": "THE CHARLIE KIRK SHOW",
+          "start": 75,
+          "end": 96,
+          "type": "MISC",
+          "canonical_name": "The Charlie Kirk Show"
+        },
+        {
+          "text": "Apple Podcasts",
+          "start": 142,
+          "end": 156,
+          "type": "ORG",
+          "canonical_name": "Apple"
+        }
+      ],
+      "stance_edges": []
+    },
+    "metadata": {
+      "annotator_id": "human_annotator_1", 
+      "annotation_time": "2025-09-22T17:00:00Z",
+      "difficulty": "easy",
+      "error_types": [],
+      "notes": "Simple promotional message with no stance content"
+    }
+  },
+  {
+    "message_id": 5,
+    "text": "Has anyone noticed:\n\nEverything Democrats say they hate about America's history was perpetrated by their party:\n\nSlavery\n\nSegregation\n\nThe KKK\n\nRepublicans:\n\nWent to war to end slavery\n\nVoted overwhelmingly for civil rights\n\nAnd vehemently opposed the KKK\n\nKnow the truth!",
+    "ground_truth": {
+      "spans": [
+        {
+          "start": 0,
+          "end": 288,
+          "text": "Has anyone noticed:\n\nEverything Democrats say they hate about America's history was perpetrated by their party:\n\nSlavery\n\nSegregation\n\nThe KKK\n\nRepublicans:\n\nWent to war to end slavery\n\nVoted overwhelmingly for civil rights\n\nAnd vehemently opposed the KKK\n\nKnow the truth!",
+          "span_type": "author",
+          "speaker": "author",
+          "confidence": 1.0
+        }
+      ],
+      "entities": [
+        {
+          "text": "Democrats",
+          "start": 30,
+          "end": 39,
+          "type": "ORG",
+          "canonical_name": "Democratic Party"
+        },
+        {
+          "text": "America",
+          "start": 64,
+          "end": 71,
+          "type": "LOC",
+          "canonical_name": "United States"
+        },
+        {
+          "text": "KKK",
+          "start": 135,
+          "end": 138,
+          "type": "ORG",
+          "canonical_name": "KKK"
+        },
+        {
+          "text": "Republicans",
+          "start": 140,
+          "end": 151,
+          "type": "ORG",
+          "canonical_name": "Republican Party"
+        },
+        {
+          "text": "KKK",
+          "start": 254,
+          "end": 257,
+          "type": "ORG",
+          "canonical_name": "KKK"
+        }
+      ],
+      "stance_edges": [
+        {
+          "speaker": "author",
+          "target": "Democratic Party",
+          "label": "oppose",
+          "confidence": 0.95,
+          "span_evidence": [19, 138],
+          "reasoning": "Blames Democrats for historical injustices"
+        },
+        {
+          "speaker": "author",
+          "target": "Republican Party", 
+          "label": "support",
+          "confidence": 0.9,
+          "span_evidence": [140, 257],
+          "reasoning": "Credits Republicans with opposing slavery and KKK"
+        },
+        {
+          "speaker": "author",
+          "target": "KKK",
+          "label": "oppose",
+          "confidence": 1.0,
+          "span_evidence": [245, 257],
+          "reasoning": "States Republicans opposed the KKK"
+        }
+      ]
+    },
+    "metadata": {
+      "annotator_id": "human_annotator_1",
+      "annotation_time": "2025-09-22T17:00:00Z", 
+      "difficulty": "hard",
+      "error_types": ["stance_ambiguity", "context_dependency"],
+      "notes": "Complex political message with historical context and multiple stance relationships"
+    }
+  }
+]
