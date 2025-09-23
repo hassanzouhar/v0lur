@@ -7,3 +7,55 @@ WARP.md
 .WARP.*
 out/
 __pycache__/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.env
+
+# Security files
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.csr
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Output data (sensitive)
+out/
+data/
+results/
