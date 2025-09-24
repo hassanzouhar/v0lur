@@ -1,4 +1,5 @@
-# 📊 v0lur - Advanced Telegram Analysis Pipeline
+![v0lur v1.0](pub/logo_mini-black-bck.png)
+### Advanced Telegram Analysis Pipeline
 **Sophisticated, Memory-Safe Analysis of Telegram Channel Data**
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
@@ -8,11 +9,11 @@
 
 ---
 
-## 🎯 **What is v0lur?**
+## **What is v0lur?**
 
 v0lur is a **production-ready, memory-safe Telegram analysis pipeline** that transforms raw Telegram channel exports into comprehensive insights through advanced NLP and machine learning techniques. Built with **fault tolerance** and **Apple Silicon compatibility** in mind.
 
-### **🏆 Key Achievements**
+### **Key Achievements**
 - **✅ 85% Specification Compliant** - Comprehensive feature implementation
 - **🔒 Memory-Safe Architecture** - Eliminates crashes with checkpoint/resume system  
 - **🛡️ Apple Silicon Compatible** - Resolves Bus Error 10 on ARM64 macOS
@@ -23,7 +24,7 @@ v0lur is a **production-ready, memory-safe Telegram analysis pipeline** that tra
 
 ## ✨ **Core Features**
 
-### **📈 Advanced Analytics Pipeline**
+### ** Advanced Analytics Pipeline**
 - **🗣️ Multi-Language Support** - Language detection and localized processing
 - **💭 Quote-Aware Analysis** - Speaker attribution and multi-voice message handling  
 - **👥 Named Entity Recognition** - Person, organization, and location extraction
@@ -34,14 +35,14 @@ v0lur is a **production-ready, memory-safe Telegram analysis pipeline** that tra
 - **✍️ Style Analysis** - Linguistic complexity and writing style metrics
 - **🔗 Link Analysis** - Domain extraction and reference tracking
 
-### **🔧 Technical Excellence**
+### ** Technical Excellence**
 - **🔒 Memory Safety** - Automatic checkpointing and resume capability
 - **📊 Real-time Monitoring** - Memory usage tracking and optimization
 - **⚡ Fault Tolerance** - Graceful degradation and error recovery
 - **🎨 Interactive UI** - Textual-based dashboard with real-time updates
 - **📁 Multiple Export Formats** - CSV, JSON, Parquet with flexible schemas
 
-### **🖥️ User Experience**
+### ** User Experience**
 - **🎛️ YAML Configuration** - Flexible, documented configuration system
 - **📱 Responsive Interface** - Terminal UI that works on any screen size
 - **🔄 Auto-refresh** - Live detection of new analysis runs
