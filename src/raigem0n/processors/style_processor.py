@@ -321,16 +321,19 @@ class StyleProcessor:
         df["readability_score"] = [f["readability_score"] for f in all_features]
         
         # Log summary statistics
-        avg_intensity = sum(f["intensity_score"] for f in all_features) / len(all_features)
-        avg_formality = sum(f["formality_score"] for f in all_features) / len(all_features)
-        avg_readability = sum(f["readability_score"] for f in all_features) / len(all_features)
-        high_intensity_count = sum(1 for f in all_features if f["intensity_score"] > 5.0)
-        
         logger.info(f"Style feature extraction completed.")
-        logger.info(f"Average intensity score: {avg_intensity:.2f}")
-        logger.info(f"Average formality score: {avg_formality:.2f}")
-        logger.info(f"Average readability score: {avg_readability:.2f}")
-        logger.info(f"High intensity messages: {high_intensity_count}/{len(df)} ({high_intensity_count/len(df)*100:.1f}%)")
+        if len(all_features) > 0 and len(df) > 0:
+            avg_intensity = sum(f["intensity_score"] for f in all_features) / len(all_features)
+            avg_formality = sum(f["formality_score"] for f in all_features) / len(all_features)
+            avg_readability = sum(f["readability_score"] for f in all_features) / len(all_features)
+            high_intensity_count = sum(1 for f in all_features if f["intensity_score"] > 5.0)
+
+            logger.info(f"Average intensity score: {avg_intensity:.2f}")
+            logger.info(f"Average formality score: {avg_formality:.2f}")
+            logger.info(f"Average readability score: {avg_readability:.2f}")
+            logger.info(f"High intensity messages: {high_intensity_count}/{len(df)} ({high_intensity_count/len(df)*100:.1f}%)")
+        else:
+            logger.info("No features extracted")
         
         return df
 

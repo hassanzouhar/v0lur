@@ -4,7 +4,7 @@ import logging
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
-from transformers import AutoModelForTokenClassification, AutoTokenizer, pipeline
+from transformers import pipeline
 
 
 logger = logging.getLogger(__name__)
