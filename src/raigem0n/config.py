@@ -165,13 +165,25 @@ class Config:
     def aliases_path(self) -> Optional[Path]:
         """Path to entity aliases file."""
         aliases_path = self.get("resources.aliases_path")
-        return Path(aliases_path) if aliases_path else None
+        if not aliases_path:
+            return None
+
+        path = Path(aliases_path)
+        if not path.is_absolute():
+            path = (self.config_path.parent / path).resolve()
+        return path
 
     @property
     def topics_path(self) -> Optional[Path]:
         """Path to topic ontology file."""
         topics_path = self.get("resources.topics_path")
-        return Path(topics_path) if topics_path else None
+        if not topics_path:
+            return None
+
+        path = Path(topics_path)
+        if not path.is_absolute():
+            path = (self.config_path.parent / path).resolve()
+        return path
 
     # Logging Configuration
     @property

@@ -53,16 +53,32 @@ class CheckpointManager:
         # Track completed steps
         self.completed_steps = set()
         self.current_step = None
-        
+
         # Memory tracking
         self.process = psutil.Process()
         self.memory_checkpoints = {}
+
+        # Track file formats so we can gracefully fallback when parquet
+        # dependencies aren't available.  We default to parquet but store
+        # per-step overrides when we need to use an alternative format.
+        self.default_checkpoint_format = "parquet"
+        self._checkpoint_formats: Dict[str, str] = {}
         
         logger.info(f"Checkpoint manager initialized: {self.checkpoint_dir}")
         
-    def get_checkpoint_path(self, step_name: str, file_type: str = "parquet") -> Path:
-        """Get checkpoint file path for a step."""
-        return self.checkpoint_dir / f"{step_name}_checkpoint.{file_type}"
+    def get_checkpoint_path(self, step_name: str, file_type: Optional[str] = None) -> Path:
+        """Get checkpoint file path for a step.
+
+        Args:
+            step_name: Name of the pipeline step.
+            file_type: Optional explicit file type.  When omitted we use the
+                last known format for this step or the current default.
+        """
+        checkpoint_format = file_type or self._checkpoint_formats.get(
+            step_name,
+            self.default_checkpoint_format,
+        )
+        return self.checkpoint_dir / f"{step_name}_checkpoint.{checkpoint_format}"
     
     def get_stats_path(self, step_name: str) -> Path:
         """Get stats file path for a step.""" 
@@ -72,10 +88,13 @@ class CheckpointManager:
         """Get current memory usage statistics."""
         try:
             memory_info = self.process.memory_info()
+            rss_mb = memory_info.rss / 1024 / 1024  # Resident Set Size
+            vms_mb = memory_info.vms / 1024 / 1024  # Virtual Memory Size
+            percent = max(self.process.memory_percent(), 0.001)
             return {
-                "rss_mb": memory_info.rss / 1024 / 1024,  # Resident Set Size
-                "vms_mb": memory_info.vms / 1024 / 1024,  # Virtual Memory Size
-                "percent": self.process.memory_percent(),
+                "rss_mb": rss_mb,
+                "vms_mb": vms_mb,
+                "percent": percent,
                 "timestamp": datetime.now().isoformat()
             }
         except Exception as e:
@@ -109,9 +128,23 @@ class CheckpointManager:
             self.log_memory_usage(step_name, "before_save")
             
             # Save main dataframe
-            checkpoint_path = self.get_checkpoint_path(step_name)
+            checkpoint_path = self.get_checkpoint_path(step_name, "parquet")
             dataframe.to_parquet(checkpoint_path, index=False, compression="snappy")
-            
+            self._checkpoint_formats[step_name] = "parquet"
+
+        except (ImportError, ValueError, AttributeError, OSError) as parquet_error:
+            logger.info(
+                "Parquet support unavailable (%s). Falling back to pickle for %s",
+                parquet_error,
+                step_name,
+            )
+            checkpoint_path = self.get_checkpoint_path(step_name, "pkl")
+            dataframe.to_pickle(checkpoint_path)
+            self._checkpoint_formats[step_name] = "pkl"
+            if self.default_checkpoint_format == "parquet":
+                # Future checkpoints should use a supported default.
+                self.default_checkpoint_format = "pkl"
+
             # Save statistics
             if stats:
                 stats_path = self.get_stats_path(step_name)
@@ -142,7 +175,8 @@ class CheckpointManager:
             status = {
                 "completed_steps": list(self.completed_steps),
                 "last_updated": datetime.now().isoformat(),
-                "memory_checkpoints": self.memory_checkpoints
+                "memory_checkpoints": self.memory_checkpoints,
+                "checkpoint_formats": self._checkpoint_formats,
             }
             with open(status_path, 'w') as f:
                 json.dump(status, f, indent=2)
@@ -167,12 +201,29 @@ class CheckpointManager:
         try:
             checkpoint_path = self.get_checkpoint_path(step_name)
             stats_path = self.get_stats_path(step_name)
-            
+
             if not checkpoint_path.exists():
-                return None, None
-            
+                # Try known alternative formats
+                fallback_formats = ["parquet", "pkl", "pickle", "csv"]
+                for fmt in fallback_formats:
+                    alt_path = self.get_checkpoint_path(step_name, fmt)
+                    if alt_path.exists():
+                        checkpoint_path = alt_path
+                        self._checkpoint_formats[step_name] = fmt
+                        break
+                else:
+                    return None, None
+
             # Load dataframe
-            df = pd.read_parquet(checkpoint_path)
+            suffix = checkpoint_path.suffix.lstrip('.')
+            if suffix == "parquet":
+                df = pd.read_parquet(checkpoint_path)
+            elif suffix in {"pkl", "pickle"}:
+                df = pd.read_pickle(checkpoint_path)
+            elif suffix == "csv":
+                df = pd.read_csv(checkpoint_path)
+            else:
+                raise ValueError(f"Unsupported checkpoint format: {suffix}")
             
             # Load stats if available
             stats = None
@@ -182,13 +233,28 @@ class CheckpointManager:
             
             logger.info(f"Checkpoint loaded for step: {step_name}")
             logger.info(f"Loaded {len(df)} rows from checkpoint")
-            
+
             return df, stats
-            
+
         except Exception as e:
             logger.error(f"Failed to load checkpoint for {step_name}: {e}")
             return None, None
-    
+
+    def checkpoint_exists(self, step_name: str) -> bool:
+        """Check whether a checkpoint file exists for the specified step."""
+
+        checkpoint_path = self.get_checkpoint_path(step_name)
+        if checkpoint_path.exists():
+            return True
+
+        for fmt in ("parquet", "pkl", "pickle", "csv"):
+            alt_path = self.get_checkpoint_path(step_name, fmt)
+            if alt_path.exists():
+                self._checkpoint_formats[step_name] = fmt
+                return True
+
+        return False
+
     def get_resume_point(self) -> Optional[str]:
         """Determine which step to resume from.
         
@@ -209,6 +275,7 @@ class CheckpointManager:
             completed = set(status.get("completed_steps", []))
             self.completed_steps = completed
             self.memory_checkpoints = status.get("memory_checkpoints", {})
+            self._checkpoint_formats.update(status.get("checkpoint_formats", {}))
             
             # Find the last completed step
             for step in reversed(self.pipeline_steps):
@@ -242,9 +309,9 @@ class CheckpointManager:
         """
         try:
             for step_name in self.pipeline_steps:
-                pattern = f"{step_name}_checkpoint_*.parquet"
+                pattern = f"{step_name}_checkpoint.*"
                 checkpoint_files = list(self.checkpoint_dir.glob(pattern))
-                
+
                 if len(checkpoint_files) > keep_latest:
                     # Sort by modification time and remove oldest
                     checkpoint_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
