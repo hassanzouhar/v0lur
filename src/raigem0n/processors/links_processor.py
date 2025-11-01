@@ -266,9 +266,10 @@ class LinksProcessor:
         total_unique_domains = len(set(
             domain for data in all_link_data for domain in data["domains"]
         ))
-        
+
         logger.info(f"Links extraction completed:")
-        logger.info(f"  - Messages with links: {total_messages_with_links}/{len(df)} ({total_messages_with_links/len(df)*100:.1f}%)")
+        if len(df) > 0:
+            logger.info(f"  - Messages with links: {total_messages_with_links}/{len(df)} ({total_messages_with_links/len(df)*100:.1f}%)")
         logger.info(f"  - Total links found: {total_links_found}")
         logger.info(f"  - Unique domains: {total_unique_domains}")
         
@@ -383,11 +384,16 @@ class LinksProcessor:
         """Analyze temporal patterns in link sharing."""
         try:
             df_with_links = df[df['total_links'] > 0].copy()
-            
+
             if len(df_with_links) == 0:
                 return {'daily_link_counts': {}, 'weekly_patterns': {}}
-            
-            df_with_links['date'] = pd.to_datetime(df_with_links.get('date', pd.Timestamp.now()))
+
+            # Ensure date column exists and is datetime
+            if 'date' in df_with_links.columns:
+                df_with_links['date'] = pd.to_datetime(df_with_links['date'])
+            else:
+                df_with_links['date'] = pd.Timestamp.now()
+
             df_with_links['date_str'] = df_with_links['date'].dt.strftime('%Y-%m-%d')
             df_with_links['weekday'] = df_with_links['date'].dt.day_name()
             

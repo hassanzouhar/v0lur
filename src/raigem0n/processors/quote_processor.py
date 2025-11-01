@@ -392,11 +392,14 @@ class QuoteProcessor:
         messages_with_quotes = sum(result["has_quotes"] for result in all_results)
         multi_speaker_messages = sum(result["multi_speaker"] for result in all_results)
         total_spans = sum(result["total_spans"] for result in all_results)
-        
+
         logger.info(f"Quote detection completed.")
-        logger.info(f"Messages with quotes: {messages_with_quotes}/{len(df)} ({messages_with_quotes/len(df)*100:.1f}%)")
-        logger.info(f"Multi-speaker messages: {multi_speaker_messages}/{len(df)} ({multi_speaker_messages/len(df)*100:.1f}%)")
-        logger.info(f"Average spans per message: {total_spans/len(df):.2f}")
+        if len(df) > 0:
+            logger.info(f"Messages with quotes: {messages_with_quotes}/{len(df)} ({messages_with_quotes/len(df)*100:.1f}%)")
+            logger.info(f"Multi-speaker messages: {multi_speaker_messages}/{len(df)} ({multi_speaker_messages/len(df)*100:.1f}%)")
+            logger.info(f"Average spans per message: {total_spans/len(df):.2f}")
+        else:
+            logger.info("No messages processed")
         
         return df
 

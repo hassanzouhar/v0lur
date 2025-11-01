@@ -4,7 +4,6 @@ import logging
 from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
-import torch
 from transformers import pipeline
 
 logger = logging.getLogger(__name__)

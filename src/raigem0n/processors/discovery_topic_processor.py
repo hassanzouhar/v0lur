@@ -251,7 +251,8 @@ class DiscoveryTopicProcessor:
                         doc[:200] + "..." if len(doc) > 200 else doc
                         for doc in (repr_docs[:3] if repr_docs else [])
                     ]
-                except:
+                except Exception as e:
+                    logger.warning(f"Failed to get representative docs for topic {topic_id}: {e}")
                     topic_detail['representative_docs'] = []
             else:
                 topic_detail['words'] = []

@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 import spacy
-from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
+from transformers import pipeline
 
 logger = logging.getLogger(__name__)
 
@@ -483,7 +483,10 @@ class StanceProcessor:
             logger.info(f"Stance classification completed.")
             logger.info(f"Total stance edges: {total_edges}")
             logger.info(f"Stance distribution: {label_counts}")
-            logger.info(f"Average edges per message: {total_edges/len(df):.2f}")
+            if len(df) > 0:
+                logger.info(f"Average edges per message: {total_edges/len(df):.2f}")
+            else:
+                logger.info("No messages processed")
         
         return df
 
