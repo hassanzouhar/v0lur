@@ -6,7 +6,7 @@ to extract stance classification, topic analysis, and linguistic patterns while
 maintaining attribution accuracy.
 """
 
-__version__ = "0.1.0"
+__version__ = "1.2.0"
 __author__ = "raigem0n"
 __description__ = "Telegram Stance & Language Analysis Pipeline"
 
